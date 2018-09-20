@@ -12,33 +12,33 @@ To create an ArcToolbox tool with which to execute this script, do the following
     before pressing OK or Finish.
         DISPLAY NAME        DATA TYPE           PROPERTY>DIRECTION>VALUE    PROPERTY>OBTAINEDFROM>VALUE  
         Input Polygons      Feature Layer       Input
-        Input Points        Feature Layer       Input     
-#       Input Points2       Feature Layer       Input
-#       Input Points3       Feature Layer       Input
-        Output Polygons     Feature Layer       Output
 7   To later revise any of this, right-click to the tool's name and select Properties.
 """
 
-
 # Import necessary modules
 import sys, os, string, math, arcpy, traceback
- 
-try:
-    # Request user input of data type = table, direction = Input, and
-    # Obtained from = (initial prompt for shapefile name)
-    domViolence = arcpy.GetParameterAsText(1)
-    arcpy.AddMessage("Adding Sexual Crime data to your polygons")
+import arcpy.stats as SS
 
-    # Request user input of data type = table, direction = Input, and
+
+try:
+    # Request user input of data type = Feature Layer, direction = Input, and
     # Obtained from = (initial prompt for shapefile name)
     polygonLayer = arcpy.GetParameterAsText(0)
 
-    # Request user input of data type = table, direction = Input, and
-    # Obtained from = (initial prompt for shapefile name)
-    riskFactors = arcpy.GetParameterAsText(2)
+    #fields to use in analysis
+    fields = arcpy.GetParameterAsText(1)
 
-    arcpy.SummarizeWithin_analysis(polygonLayer, domViolence, riskFactors, "KEEP_ALL")
-    arcpy.AlterField_management(riskFactors, "Point_Count", "domviolence", "Domestic Violence", "LONG", 4, "NULLABLE", "DO_NOT_CLEAR")
+    #output
+    output = arcpy.GetParameterAsText(4)
+
+    #get count of variables and use top 25%
+    featureCount = ((arcpy.GetCount_management(polygonLayer))*.025)
+
+
+    SS.SimilaritySearch(subsetFeature, polygonLayer, riskSurface, "NO_COLLAPSE", "MOST_SIMILAR", "ATTRIBUTE_VALUES", featureCount, "F5yearincrements_pop60_cy_p;AgeRisk;raceandhispanicorigin_minoritycy_p", None)
+
+
+
 
 
 except Exception as e:
@@ -48,3 +48,4 @@ except Exception as e:
     exceptionreport = sys.exc_info()[2]
     fullermessage   = traceback.format_tb(exceptionreport)[0]
     arcpy.AddError("at this location: \n\n" + fullermessage + "\n")
+

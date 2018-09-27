@@ -28,73 +28,68 @@ arcpy.addOutputsToMap = True
 
 try:
     polygonLayer = arcpy.GetParameterAsText(0)
-
-    output_folder = arcpy.GetParameterAsText(7)
-    # Request user input of data type = table, direction = Input, and
-    # Obtained from = (initial prompt for shapefile name)
-    #polygonLayer = arcpy.GetParameterAsText(0)
-    
-    outputLayer = arcpy.GetParameterAsText(6)
-    # Request user input of data type = table, direction = Input, and
-    # Obtained from = (initial prompt for shapefile name)
     
     #add optional parameters
-    try: 
+    #def assignNull(num, name):
+    if len(arcpy.GetParameterAsText(1))==0:
+        domViolence = 99999
+    else:
         domViolence = arcpy.GetParameterAsText(1)
-        arcpy.AddMessage("Adding Sexual Crime data to your polygons")
-    except:
-        domViolence = None
 
-    try:
-        # Mental Illness
+    if len(arcpy.GetParameterAsText(2))==0:
+        mentalIllness = 99999
+    else:
         mentalIllness = arcpy.GetParameterAsText(2)
-    except:
-        mentalIllness = None
     
-    try:
-        # substance
+    if len(arcpy.GetParameterAsText(3))==0:
+        substanceAbuse = 99999
+    else:
         substanceAbuse = arcpy.GetParameterAsText(3)
-    except:
-        substanceAbuse = None
 
-    try:
-        # other
+    if len(arcpy.GetParameterAsText(4))==0:
+        otherData = 99999
+    else:
         otherData = arcpy.GetParameterAsText(4)
-    except:
-        substanceAbuse = None
-    
-    #field to change
-    fieldName = "Point_Count"
+
+    # output layer
+    outputLayer = arcpy.GetParameterAsText(5)
 
     # Summarize point layer by polygon layer
-    if domViolence != None:
-        layer = arcpy.SummarizeWithin_analysis(polygonLayer, domViolence, outputLayer, "KEEP_ALL", None, None, None, None, "NO_MIN_MAJ", "NO_PERCENT", None)
+
+    #define the input layer 
+    inputLayer = arcpy.MakeFeatureLayer_management(polygonLayer, "in_memory/input")
     
-    #print field names.. we can see the new point_count layer is not showing 
-    ls = [f.name for f in arcpy.ListFields(outputLayer)]
-    arcpy.AddMessage(ls)
+    if domViolence != 99999:
+        arcpy.SpatialJoin_analysis(inputLayer, domViolence, "in_memory/domvio")
+        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/domvio', 'TARGET_FID')
+        arcpy.AddField_management(inputLayer,"domVio",  "LONG") 
+        arcpy.CalculateField_management(inputLayer, "domVio", "!Join_Count!", "PYTHON3")
+        arcpy.RemoveJoin_management(inputLayer)
     
-    #Rename field in output to domViolence
-    arcpy.AlterField_management(outputLayer, fieldName, "domvVolence", "Domestic Violence", "LONG", 4, "NULLABLE", "DO_NOT_CLEAR")
-   
-    #if mentalIllness != None:
-    #    arcpy.analysis.SummarizeWithin(polygonLayer, "mentalIllness", "RiskFactors", "KEEP_ALL", None, None, None, "NO_MIN_MAJ", "NO_PERCENT", None)
+    if mentalIllness != 99999:
+        #summarize points by poygon layer
+        arcpy.SpatialJoin_analysis(inputLayer, mentalIllness, "in_memory/mental")
+        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/mental', 'TARGET_FID')
+        arcpy.AddField_management(inputLayer,"mentalIllness",  "LONG") 
+        arcpy.CalculateField_management(inputLayer, "mentalIllness", "!Join_Count!", "PYTHON3")
+        arcpy.RemoveJoin_management(inputLayer)
 
-    #    #Rename field in output to domViolence
-    #    arcpy.management.AlterField(polygonLayer, "Point_Count", "mentalIllness", "Domestic Violence", "LONG", 4, "NULLABLE", "DO_NOT_CLEAR")
+    if substanceAbuse != 99999:
+    #    #summarize points by poygon layer
+        arcpy.SpatialJoin_analysis(inputLayer, substanceAbuse, "in_memory/substance")
+        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/substance', 'TARGET_FID')
+        arcpy.AddField_management(inputLayer,"substanceAbuse",  "LONG") 
+        arcpy.CalculateField_management(inputLayer, "substanceAbuse", "!Join_Count!", "PYTHON3")
+        arcpy.RemoveJoin_management(inputLayer)
 
-    #if substanceAbuse != None:
-    #    arcpy.analysis.SummarizeWithin("polygonLayer", "substanceAbuse", "RiskFactors", "KEEP_ALL", None, None, None, "NO_MIN_MAJ", "NO_PERCENT", None)
-
-    #    #Rename field in output to domViolence
-    #    arcpy.management.AlterField("riskfactors100", "Point_Count", "substanceAbuse", "Domestic Violence", "LONG", 4, "NULLABLE", "DO_NOT_CLEAR")
-
-    #if otherData != None:
-    #    arcpy.analysis.SummarizeWithin("polygonLayer", "otherData", "RiskFactors", "KEEP_ALL", None, None, None, "NO_MIN_MAJ", "NO_PERCENT", None)
-
-    #    #Rename field in output to domViolence
-    #    arcpy.management.AlterField("riskfactors100", "Point_Count", "otherData", "Domestic Violence", "LONG", 4, "NULLABLE", "DO_NOT_CLEAR")
-   
+    if otherData != 99999:
+        arcpy.SpatialJoin_analysis(inputLayer, otherData, "in_memory/otherData")
+        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/otherData', 'TARGET_FID')
+        arcpy.AddField_management(inputLayer,"otherData",  "LONG") 
+        arcpy.CalculateField_management(inputLayer, "otherData", "!Join_Count!", "PYTHON3")
+        arcpy.RemoveJoin_management(inputLayer)
+    
+    arcpy.CopyFeatures_management("in_memory/input", outputLayer)
 except Exception as e:
     # If unsuccessful, end gracefully by indicating why
     arcpy.AddError('\n' + "Script failed because: \t\t" + e.message )

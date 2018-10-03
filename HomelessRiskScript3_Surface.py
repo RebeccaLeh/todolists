@@ -40,6 +40,7 @@ try:
     #fieldnames 
     fieldNames = arcpy.GetParameterAsText(1)
     
+    arcpy.AddMessage(fieldNames)
     # Request user input of data type = field (multiple), direction = Intput, and
     # Obtained from = (initial prompt for fields to reverse)
     #otherFields 
@@ -54,26 +55,10 @@ try:
     outputLayer = arcpy.GetParameterAsText(3)
 
     ################################Run Analysis #####################################################
-   
-    #fields to append to output###Does not include double fields.... this is a problem because population is double. 
-    lsFields = []
-    for field in arcpy.ListFields(polygonLayer):
-        if field.type in ('Integer','Single','SmallInteger','String'):
-            lsFields.append(field.name)
-            addFields = ';'.join(str(f) for f in lsFields)
-    arcpy.AddMessage(addFields)
-
     #create table to be used by summary statistics
     summaryTable = arcpy.CreateTable_management("in_memory", "table1")
 
-    #Risk Surface
-    if 'F5yearincrements_pop50_cy_p' in [f.name for f in arcpy.ListFields(polygonLayer)] and 'AgeRisk' not in [f.name for f in arcpy.ListFields(polygonLayer)]: 
-        #add field AgeRisk
-        arcpy.AddField_management(polygonLayer, 'AgeRisk', "DOUBLE", field_alias='Age Risk')
-
-        ##Calculate fields AgeRisk, and flip ranking for marrital status
-        arcpy.CalculateField_management(polygonLayer, 'AgeRisk', '(!F5yearincrements_pop50_cy_p!) +(!F5yearincrements_pop60_cy_p!) + (!F5yearincrements_pop55_cy_p!)', "PYTHON3")
-    
+    #Max values to switch direction of any high values to low as specified from the paramter
     def calculate_max(table,field):
         na = arcpy.da.TableToNumPyArray(table,field)
         return numpy.amax(na[field])
@@ -90,10 +75,6 @@ try:
             arcpy.CalculateField_management(polygonLayer, name, '{max}-(!{field}!)'.format(max=100, field=name))
     except:
         pass
-
-        ##add agerisk to fields being queried 
-        #otherfield= ';AgeRisk'
-        #fieldNames = fieldNames+otherfield
     
     # Create list of values to use in suummary statistics opeartion
     #create empty list
@@ -112,6 +93,7 @@ try:
     arcpy.SubsetFeatures_ga(polygonLayer, "worstTract", None, 1, "ABSOLUTE_VALUE")
 
     #Create two dictionaries with values for the worst tract and the summary table 
+    #dictionary 1
     values = {}
     with arcpy.da.SearchCursor(summaryTable, "*") as cursor:
         for row in cursor:
@@ -119,7 +101,7 @@ try:
             for field in cursor.fields:
                 values[field]=row[i]
                 i+=1
-    
+    #dictionary 2
     layerFields = {}
     with arcpy.da.SearchCursor("worstTract", "*") as cursor2:
         for a_row in cursor2:
@@ -127,7 +109,8 @@ try:
             for field in cursor2.fields:
                 layerFields[field]=a_row[i]
                 i+=1
-                
+    
+    #get matching fields and transfer values from summary statistics table to susbet feature
     for key in values:
         for field in layerFields:
             if key[4:35] == field[:31]:
@@ -136,10 +119,32 @@ try:
                     for f_row in cursor3:
                         f_row[0] = values[key]
                         cursor3.updateRow(f_row) 
-
-    ##Similarity Search
-    SS.SimilaritySearch("worstTract", polygonLayer, outputLayer, "NO_COLLAPSE", "MOST_SIMILAR", "ATTRIBUTE_VALUES", 10000, fieldNames, fieldNames)
     
+    ##Similarity Search
+    SS.SimilaritySearch("worstTract", polygonLayer, "in_memory/simsearch", "NO_COLLAPSE", "MOST_SIMILAR", "ATTRIBUTE_VALUES", 0, fieldNames)
+
+    #in memory input
+    arcpy.CopyFeatures_management(polygonLayer, outputLayer)
+
+    #make layer of input or addjoin
+    arcpy.MakeFeatureLayer_management(outputLayer, 'outLayer')
+
+    #fields to add to output
+    newFields = "SIM_RANK", "SIM_INDEX", "LABEL_RANK", "CANDID"
+    
+    #get OBJID for both layers to use in join
+    objID = arcpy.da.Describe('outLayer')['OIDFieldName']
+    objIDinMEM = arcpy.da.Describe("in_memory/simsearch")['OIDFieldName']
+
+    #Join two tables together and transfer fields over to output
+    arcpy.AddJoin_management('outLayer', objID, "in_memory/simsearch", "CAND_ID")
+    arcpy.CalculateField_management('outLayer', "SIM_RANK", "!SIMRANK!", "PYTHON3")
+    arcpy.CalculateField_management('outLayer', "SIM_INDEX", "!SIMINDEX!", "PYTHON3")
+    arcpy.CalculateField_management('outLayer', "LABEL_RANK", "!LABELRANK!", "PYTHON3")
+    arcpy.CalculateField_management('outLayer', "CANDID", "!CAND_ID!", "PYTHON3")
+
+    #remove the join adn move to a permament output file
+    arcpy.RemoveJoin_management('outLayer')
 
 except Exception as e:
     # If unsuccessful, end gracefully by indicating why

@@ -59,35 +59,36 @@ try:
     #define the input layer 
     inputLayer = arcpy.MakeFeatureLayer_management(polygonLayer, "in_memory/input")
     
-    if domViolence != 99999:
-        arcpy.SpatialJoin_analysis(inputLayer, domViolence, "in_memory/domvio")
-        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/domvio', 'TARGET_FID')
-        arcpy.AddField_management(inputLayer,"domVio",  "LONG") 
-        arcpy.CalculateField_management(inputLayer, "domVio", "!Join_Count!", "PYTHON3")
-        arcpy.RemoveJoin_management(inputLayer)
+    #######################pull object ID field name ###########################################
+    objID = arcpy.da.Describe(polygonLayer)['OIDFieldName']
+
+    arcpy.AddMessage(objID)
+    #list fo all possible layers and check for each one and if so write them to a new list, if not than do nothing. 
+  
+    #search for paste funciton concatanate 
+    # one list of layer info and one name of layer as string
+    # for x in listOFNames do function
+    #function that does all the below
+    # def createNew(layerName, layerData)
+    potentials = domViolence, mentalIllness, substanceAbuse, otherData
     
-    if mentalIllness != 99999:
-        #summarize points by poygon layer
-        arcpy.SpatialJoin_analysis(inputLayer, mentalIllness, "in_memory/mental")
-        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/mental', 'TARGET_FID')
-        arcpy.AddField_management(inputLayer,"mentalIllness",  "LONG") 
-        arcpy.CalculateField_management(inputLayer, "mentalIllness", "!Join_Count!", "PYTHON3")
-        arcpy.RemoveJoin_management(inputLayer)
+    layerName = []
+    layerData = []
+    for x in potentials:
+        if x != 99999:
+            layerName.append(x[0:5])
+            layerData.append(x)
+    arcpy.AddMessage(layerName)
+    arcpy.AddMessage(layerData)
 
-    if substanceAbuse != 99999:
-    #    #summarize points by poygon layer
-        arcpy.SpatialJoin_analysis(inputLayer, substanceAbuse, "in_memory/substance")
-        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/substance', 'TARGET_FID')
-        arcpy.AddField_management(inputLayer,"substanceAbuse",  "LONG") 
-        arcpy.CalculateField_management(inputLayer, "substanceAbuse", "!Join_Count!", "PYTHON3")
-        arcpy.RemoveJoin_management(inputLayer)
-
-    if otherData != 99999:
-        arcpy.SpatialJoin_analysis(inputLayer, otherData, "in_memory/otherData")
-        arcpy.AddJoin_management(inputLayer, 'OBJECTID', 'in_memory/otherData', 'TARGET_FID')
-        arcpy.AddField_management(inputLayer,"otherData",  "LONG") 
-        arcpy.CalculateField_management(inputLayer, "otherData", "!Join_Count!", "PYTHON3")
-        arcpy.RemoveJoin_management(inputLayer)
+    for x in range(len(layerName)-1):
+        if layerData[x] != 99999:
+            mem = "in_memory/"+layerName[x]
+            arcpy.SpatialJoin_analysis(inputLayer, layerData[x], mem)
+            arcpy.AddJoin_management(inputLayer, objID, mem, 'TARGET_FID')
+            arcpy.AddField_management(inputLayer,layerName[x],  "LONG") 
+            arcpy.CalculateField_management(inputLayer, layerName[x], "!Join_Count!", "PYTHON3")
+            arcpy.RemoveJoin_management(inputLayer)
     
     arcpy.CopyFeatures_management("in_memory/input", outputLayer)
 except Exception as e:

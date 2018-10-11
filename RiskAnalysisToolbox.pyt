@@ -1,4 +1,4 @@
-import sys, os, string, math, arcpy, traceback, numpy
+import sys, os, string, math, arcpy, traceback, numpy, json
 import arcpy.stats as SS
 
 class Toolbox(object):
@@ -9,7 +9,7 @@ class Toolbox(object):
         self.alias = ""
 
         # List of tool classes associated with this toolbox
-        self.tools = [RiskLayer, pointtoPoly, newSurface]
+        self.tools = [pointtoPoly, RiskLayer, newSurface, rankedProj]
 
 
 class pointtoPoly(object):
@@ -21,7 +21,7 @@ class pointtoPoly(object):
 
     def getParameterInfo(self):
         polygon = arcpy.Parameter(
-            displayName = "Input Census",
+            displayName = "Areas of interest",
             name = "in_features",
             datatype = "GPFeatureLayer",
             parameterType = "Required",
@@ -34,7 +34,7 @@ class pointtoPoly(object):
             datatype = "GPFeatureLayer",
             parameterType = "Optional",
             direction = "Input")
-        domestic.filter.list = ["Multipoint"]
+        domestic.filter.list = ["Point"]
 
         mental = arcpy.Parameter(
             displayName = "Severe Mental Illness",
@@ -42,7 +42,7 @@ class pointtoPoly(object):
             datatype = "GPFeatureLayer",
             parameterType = "Optional",
             direction = "Input")
-        mental.filter.list = ["Multipoint"]
+        mental.filter.list = ["Point"]
 
         substance = arcpy.Parameter(
             displayName = "Substance Abuse",
@@ -50,23 +50,27 @@ class pointtoPoly(object):
             datatype = "GPFeatureLayer",
             parameterType = "Optional",
             direction = "Input")
-        substance.filter.list = ["Multipoint"]
+        substance.filter.list = ["Point"]
 
         addit = arcpy.Parameter(
             displayName = "Additional Related Data",
+            name = "additional",
             datatype = "GPFeatureLayer",
             parameterType = "Optional",
             direction = "Input")
-        addit.filter.list = ["Multipoint"]
+        addit.filter.list = ["Point"]
 
         output = arcpy.Parameter(
-            displayName="Output Polygon",
+            displayName="Output Features",
             name="out_features",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Output")
 
+        output.symbology = os.path.join(os.path.dirname(__file__), "ptoP_Symbology.lyrx")
         params = [polygon, domestic, mental, substance, addit, output]
+
+        #params[5].symbology = os.path.join(os.path.dirname(__file__), "ptoP_Symbology.lyrx")
 
         return params
 
@@ -89,6 +93,9 @@ class pointtoPoly(object):
         """The source code of the tool."""
         polygon, domestic, mental, substance, addit, output = parameters
 
+        polygonLayer = polygon.valueAsText
+        outputLayer = output.valueAsText
+
         #create an output layer
         arcpy.CopyFeatures_management(polygonLayer, outputLayer)
         arcpy.MakeFeatureLayer_management(outputLayer, 'output')
@@ -96,18 +103,29 @@ class pointtoPoly(object):
         #get objID value for join layer
         objID = arcpy.da.Describe('output')['OIDFieldName']
 
+        arcpy.SetProgressorLabel("Writing summary field of input points to output layer..")
+
+        codeblock1 = """
+def updateValue(value):
+    if value == 0:
+        return None
+    else: return value"""
+
         #using parameter attributes, look for data in all point fields, if data exists, write new field to output
         #and assign value based on spatial join 
         for x in parameters[1:-1]:
-            if x.value:
-                mem = "in_memory/"+(x.name)
-                arcpy.AddMessage(mem)
-                arcpy.SpatialJoin_analysis('output', (x.valueAsText), mem)
-                arcpy.AddJoin_management('output', objID, mem, 'TARGET_FID')
-                arcpy.AddField_management('output',(str(x.name)),  "LONG", field_alias=(x.displayName)) 
-                arcpy.CalculateField_management('output', (str(x.name)), "!Join_Count!", "PYTHON3")
-                arcpy.RemoveJoin_management('output')   
+           if x.value:
+               mem = "in_memory/"+(x.name)
+               arcpy.SpatialJoin_analysis('output', (x.valueAsText), mem)
+               arcpy.AddJoin_management('output', objID, mem, 'TARGET_FID')
+               arcpy.AddField_management('output',(str(x.name)),  "LONG", field_alias=(x.displayName)) 
+               arcpy.CalculateField_management('output', (str(x.name)), "!Join_Count!", "PYTHON3")
+               arcpy.CalculateField_management('output', (str(x.name)), 'updateValue(!{0}!)'.format(str(x.name)), "PYTHON3", codeblock1)
+               arcpy.RemoveJoin_management('output')   
         return 
+###############################################################################################################################
+############################################################### NEW TOOL #########################################################
+#################################################################################################################################
 
 class RiskLayer(object):
     def __init__(self):
@@ -118,7 +136,7 @@ class RiskLayer(object):
 
     def getParameterInfo(self):
         inputLayer = arcpy.Parameter(
-            displayName = "Input Census",
+            displayName = "Areas of interest",
             name = "in_features",
             datatype = "GPFeatureLayer",
             parameterType = "Required",
@@ -155,6 +173,8 @@ class RiskLayer(object):
             parameterType="Required",
             direction="Output")
 
+        outputLayer.symbology = os.path.join(os.path.dirname(__file__),"riskSurface_Symbology.lyrx")
+
         params = [inputLayer, riskFactors, revFields, outputLayer]
 
         return params
@@ -188,7 +208,9 @@ class RiskLayer(object):
         outputLayer = outputLayer.valueAsText
         
        #####################################create sum statistics and assing values to new polygon #####################################################
-        #create table to be used by summary statistics
+        arcpy.SetProgressorLabel("Finding worst values for each risk factor..") 
+       
+       #create table to be used by summary statistics
         summaryTable = arcpy.CreateTable_management("in_memory", "table1")
 
         #Max values to switch direction of any high values to low as specified from the paramter
@@ -202,10 +224,9 @@ class RiskLayer(object):
             words = otherFields.split(';')
             for i in words:
                 list.append(i)
-            for name in words:
+            for name in list:
                 max = calculate_max(polygonLayer, name)
-                arcpy.AddMessage(max)
-                arcpy.CalculateField_management(polygonLayer, name, 'max-(!{field}!)'.format(field=name))
+                arcpy.CalculateField_management(polygonLayer, name, '{max}-(!{field}!)'.format(max=max, field=name))
         except:
             pass
     
@@ -248,16 +269,17 @@ class RiskLayer(object):
             for field in layerFields:
                 if key[4:35] == field[:31]:
                     with arcpy.da.UpdateCursor("worstTract", [field]) as cursor3:
-                        arcpy.AddMessage(cursor3)
                         for f_row in cursor3:
                             f_row[0] = values[key]
                             cursor3.updateRow(f_row) 
        
        ##################################### Run Similarity Search #####################################################
+        arcpy.SetProgressorLabel("Ranking each polygon vs. worst possible values...") 
 
         ##Similarity Search
         SS.SimilaritySearch("worstTract", polygonLayer, "in_memory/simsearch", "NO_COLLAPSE", "MOST_SIMILAR", "ATTRIBUTE_VALUES", 0, fieldNames)
 
+        arcpy.Delete_management("worstTract")
        ##################################### write to output file #####################################################
        
         #in memory input
@@ -265,6 +287,8 @@ class RiskLayer(object):
 
         #make layer of input or addjoin
         arcpy.MakeFeatureLayer_management(outputLayer, 'outLayer')
+
+        arcpy.SetProgressorLabel("Writing ranked list to output...") 
 
         #fields to add to output
         arcpy.AddField_management("outLayer", "SIM_RANK", "LONG", field_alias='Risk Rank')
@@ -282,7 +306,22 @@ class RiskLayer(object):
         #remove the join adn move to a permament output file
         arcpy.RemoveJoin_management('outLayer')
 
+
+####################################tell user which nulls were not included using a warning ########################################
+        nextLs = fieldNames.replace(";"," IS NULL Or ")
+        nextLs = nextLs +" IS NULL"
+        arcpy.SelectLayerByAttribute_management(polygonLayer, "NEW_SELECTION", nextLs)
+       
+        desc = arcpy.Describe(polygonLayer)
+        if len(desc.FIDSet)>0:
+            arcpy.AddWarning("The following features contained Null values and were excluded from the analysis: {}".format(desc.FIDSet.split(";")))
+        arcpy.SelectLayerByAttribute_management(polygonLayer, "CLEAR_SELECTION")
+
+
         return
+###############################################################################################################################
+############################################################### NEW TOOL #########################################################
+#################################################################################################################################
 
 class newSurface(object):
     def __init__(self):
@@ -293,7 +332,7 @@ class newSurface(object):
 
     def getParameterInfo(self):
         polygon = arcpy.Parameter(
-            displayName = "Polygon Layer",
+            displayName = "Areas of interest",
             name = "polygonLayer",
             datatype = "GPFeatureLayer",
             parameterType = "Required",
@@ -301,7 +340,7 @@ class newSurface(object):
         polygon.filter.list = ["Polygon"]
 
         flds = arcpy.Parameter(
-            displayName="Fields",
+            displayName="Contributing factors",
             name="fieldNames",
             datatype="Field",
             parameterType="Required",
@@ -311,7 +350,7 @@ class newSurface(object):
         flds.parameterDependencies = [polygon.name]
 
         newFld = arcpy.Parameter(
-            displayName="New Indicator Name",
+            displayName="Program Name",
             name="newIndicator",
             datatype="GPString",
             parameterType="Required",
@@ -333,6 +372,8 @@ class newSurface(object):
 
         params = [polygon, flds, newFld, finNum, outFeats]
 
+        outFeats.symbology = os.path.join(os.path.dirname(__file__),"projDesign_Symbology.lyrx")
+
         return params
 
     def isLicensed(self):
@@ -343,7 +384,13 @@ class newSurface(object):
         """Modify the values and properties of parameters before internal
         validation is performed.  This method is called whenever a parameter
         has been changed."""
-        return
+        #arcpy.env.workspace = path
+  # *******************************************************************************************************************************************     
+        #if paramters[2].hasBeenValidated:    
+        #    workspace = paramaters[4].valueAsText
+        #    fields = parameters[2].valueAsText
+        #    fields = arcpy.ValidateFieldName(fields, arcpy.env.workspace)
+        #return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool
@@ -357,11 +404,13 @@ class newSurface(object):
         #rename parameters to match code 
         polygonLayer = polygon.valueAsText
         fields = flds.valueAsText
-        newField = newfld.valueAsText
+        aliasName = newfld.valueAsText
         finalNum = finNum.valueAsText
         outputLayer = outFeats.valueAsText
 
         ##############################################################summary statistics, new polygon with sum values##########################################################
+        arcpy.SetProgressorLabel("Finding worst values for each risk factor..") 
+
         #create table to be used by summary statistics
         summaryTable = arcpy.CreateTable_management("in_memory", "table1")
 
@@ -411,23 +460,26 @@ class newSurface(object):
                             cursor3.updateRow(f_row) 
 
         #########################################use 25% of input to run similarity search ############################################################
+        arcpy.SetProgressorLabel("Ranking top worst tracts against new risk factors...") 
 
         #get count of variables and use top 25%
         featureCount = int(arcpy.GetCount_management(polygonLayer).getOutput(0))
 
         #in this analysis we will only use the worst 25% of tracts for generating homelessness to look at potential sitings for nrew projects           
-        projCount = ((featureCount)*0.25)
+        #projCount = ((featureCount)*0.25)
 
         #select top 25% from risk layer 
-        arcpy.SelectLayerByAttribute_management(polygonLayer, "NEW_SELECTION", "SIM_RANK< {percent}".format(percent=projCount))
+        arcpy.SelectLayerByAttribute_management(polygonLayer, "NEW_SELECTION", "SIM_RANK< {percent}".format(percent=finalNum))
 
         #Similarity Search
-        SS.SimilaritySearch("in_memory/worstTract", polygonLayer, "in_memory/simsearch", "NO_COLLAPSE", "MOST_SIMILAR", "ATTRIBUTE_VALUES", 100, fields)
+        SS.SimilaritySearch("in_memory/worstTract", polygonLayer, "in_memory/simsearch", "NO_COLLAPSE", "MOST_SIMILAR", "ATTRIBUTE_VALUES", 0, fields)
 
         #clear selection
         arcpy.SelectLayerByAttribute_management(polygonLayer, "CLEAR_SELECTION")
 
         #############################################################################add field and assign value############################################################
+        arcpy.SetProgressorLabel("Adding new field to output for project...") 
+
         #copy features to in memory workspace 
         arcpy.CopyFeatures_management(polygonLayer, outputLayer)
 
@@ -440,32 +492,152 @@ class newSurface(object):
         ###Look into switching similarity result as an appended field back into a layer"
         arcpy.AddJoin_management('outLayer', objID, 'in_memory/simsearch', 'CAND_ID')
 
+        fieldName = arcpy.ValidateFieldName(aliasName)
         #addField for the project name 
-        arcpy.AddField_management('outLayer', newField, "Short", 0)
-
-        #code block used to change match values to 1
-        codeBlock = """
-def calFld(num, fld):
-    if fld < num:
-        a = 1
-    else:
-        a = 0
-    return a"""
+        arcpy.AddField_management('outLayer', fieldName, "Short", "","", "",aliasName)
+        
+        arcpy.SetProgressorLabel("Assigning rank to field for specified number of tracts...") 
 
         #calculateNewField
-        arcpy.CalculateField_management('outLayer', newField, "calFld({numRes}, !SIMRANK!)".format(numRes=finalNum), "PYTHON3",  codeBlock)
+        #arcpy.CalculateField_management('outLayer', fieldNa,"!SIMRANK!", "PYTHON3",  codeBlock)
 
         #code block used to change null values back to 0
         codeBlock2 = """
 def updateValue(value):
     if value == None:
-        return'0'
+        return Null
     else: return value """
 
         #update values
-        arcpy.CalculateField_management('outLayer', newField, 'updateValue(!{newField}!)'.format(newField=newField) , "PYTHON3",  codeBlock2)
+        arcpy.CalculateField_management('outLayer', fieldName, 'updateValue(!SIMRANK!)', "PYTHON3",  codeBlock2)
 
         #remove join 
         arcpy.RemoveJoin_management('outLayer')
+
+
+        #arcpy.ApplySymbologyFromLayer_management(outputLayer, (os.path.join(os.path.dirname(__file__),"riskSurface_Symbology.lyrx")), [["VALUE_FIELD", "#", "{0}".format(newField)]])
+
+        ######################Change Field Name used in Symbology Layer#####################################################
+        with open(os.path.join(os.path.dirname(__file__),"projDesign_Symbology.lyrx"), "r") as jsonFile:
+                  data = json.load(jsonFile)
+        fredName = data["layerDefinitions"][0]["renderer"]["field"]
+        headName = data["layerDefinitions"][0]["renderer"]["heading"]
+        data["layerDefinitions"][0]["renderer"]["field"] = str(fieldName)
+        data["layerDefinitions"][0]["renderer"]["heading"] = str(fieldName)
+        with open(os.path.join(os.path.dirname(__file__),"finalProj_Symb.lyrx"), "w") as jsonFile:
+                  json.dump(data, jsonFile)
+        return
+
+###############################################################################################################################
+############################################################### NEW TOOL #########################################################
+#################################################################################################################################
+
+class rankedProj(object):
+    def __init__(self):
+        """Define the tool (tool name is the name of the class)."""
+        self.label = "Project Rankings"
+        self.description = "This tool creates final project rankings"
+        self.canRunInBackground = True
+
+    def getParameterInfo(self):
+        polygon = arcpy.Parameter(
+            displayName = "Areas of interest",
+            name = "polygonLayer",
+            datatype = "GPFeatureLayer",
+            parameterType = "Required",
+            direction = "Input")
+        polygon.filter.list = ["Polygon"]
+
+        value_table = arcpy.Parameter(
+            displayName="Fields and Weights",
+            name="value_table",
+            datatype="GPValueTable",
+            parameterType="Required",
+            direction="Input")
+
+        value_table.columns = ([["Field", "Project Rankings"], ["Double", "Weighting (must sum to 1)"]])
+
+        value_table.parameterDependencies = [polygon.name]
+
+        outFeats = arcpy.Parameter(
+            displayName="Output Features",
+            name="out_features",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Output")
+        
+        outFeats.symbology = os.path.join(os.path.dirname(__file__), "finalProj_Symb.lyrx")
+        #FinalScore_Symbology.lyrx
+        params = [polygon, value_table, outFeats]
+
+        return params
+
+    def isLicensed(self):
+        """Set whether tool is licensed to execute."""
+        return True
+
+    def updateParameters(self, parameters):
+        """Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed."""
+        #arcpy.env.workspace = path
+  # *******************************************************************************************************************************************     
+  
+        return
+
+    def updateMessages(self, parameters):
+        """Modify the messages created by internal validation for each tool
+        parameter.  This method is called after internal validation."""
+        return
+
+    def execute(self, parameters, messages):
+        """The source code of the tool."""
+        input = parameters[0].valueAsText
+        outLayer = parameters[2].ValueAsText
+        #copy features to in memory workspace 
+        arcpy.CopyFeatures_management(input, outLayer)
+
+        #make output layer to use for join 
+        arcpy.MakeFeatureLayer_management(outLayer, 'outLayer')
+
+        #input layer
+        moca = parameters[1].valueAsText
+
+
+        ##the following string manipulation is to get the input into the right format to use in calculate field for the weighting
+        #split field names
+        fieldSplit = moca.split(';')
+
+        #split again
+        newOne = []
+
+        #append field names to list 
+        #for x in fieldSplit:
+        for item in fieldSplit:
+            newOne.append(item.split())
+        
+        #create formatting for calculate fields
+        for x in newOne:
+            x[1] = "!"+x[0]+"!"+"*"+x[1]
+        
+        #calculate fields - multiple weights by fields 
+        arcpy.CalculateFields_management('outLayer', "PYTHON3", newOne)
+
+        #add field for final scoring
+        arcpy.AddField_management('outLayer', "FinalScore")
+
+        #the following list manipulation is to get the input into the right formatting for calculating a final score 
+        list2 = []
+        for x in newOne:
+            list2.append(x[0]) 
+        
+        ls3 = []
+        for x in list2:
+            ls3.append("!"+x+"!"+"+")
+        length = "/"+str(len(ls3))
+        ls4 = "".join(map(str,ls3))
+        ls4 = ls4[:-1]+length
+
+        arcpy.CalculateField_management('outLayer', 'FinalScore', ls4, "PYTHON3" )
 
         return

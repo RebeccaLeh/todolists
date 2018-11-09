@@ -1,0 +1,44 @@
+<div style="text-align: center;"><font size="2">Phone: {pocphone}<br />Email: {pocemail}<br /></font><font size="2">Address: {street},{city},{zip}</font></div><span style="text-align: start;"><div style="text-align: center;"><a href="{website}" target="_blank">Website</a><font size="2" style="font-size: small;"><br /></font><span style="font-size: small; text-align: start;"><div style="text-align: center;">Services Provided: {expression/expr9}</div></span></div></span><font size="2" style="text-align: center;"><br /><table style="color:black; text-align:center; width:100%;border-spacing: 0px">
+<tbody>
+<tr>
+	<th height="30" style="text-align:center; font-size:16px"><b>Bed Type</b></th>
+	<th height="30" style="text-align: center;"><span style="font-size: 16px;"><b>Availability</b></span></th>
+</tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px">Any</td>
+<td height="25" style="text-align:center; ">{expression/expr1}</td></tr>
+<tr>
+<td height="25" style=" text-align:center; font-size:14px">Women</td>
+<td height="25" style="text-align:center; ">{expression/expr0}</td></tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px">Men</td>
+<td height="25" style="text-align:center; ">{expression/expr2}</td></tr>
+<tr>
+<td height="25" style=" text-align:center; font-size:14px">Youth</td>
+<td height="25" style="text-align:center;">{expression/expr3}</td></tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px">Children</td>
+<td height="25" style="text-align:center; ">{expression/expr4}</td></tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px">Veterans</td>
+<td height="25" style="text-align:center; ">{expression/expr5}</td></tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px"><b>Other Info </b></td>
+<td height="25" style="text-align:center;"><br /></td></tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px">Waitlist</td>
+<td height="25" style="text-align:center;">{expression/expr10}</td></tr>
+<tr>
+<td height="25" style="text-align:center; font-size:14px">Intakes</td>
+<td height="25" style="text-align:center;">{expression/expr11}</td></tr><tr><td height="25" style=" text-align:center; font-size:14px">Requirements</td>
+<td height="25" style="text-align:center;">{expression/expr13}
+</td></tr><tr>
+<td height="25" style="text-align:center; font-size:14px"><br /></td><td height="25" style="text-align:center;"></td></tr>
+<tr>
+</tr><tr>	
+
+</tr></tbody></table><table style="color:black; text-align:center; width:100%;border-spacing: 0px">
+<tbody>
+<tr></tr></tbody></table>
+
+</font><div style="text-align:center;font-size:16px"><a href="{expression/expr16}">Find an Opioid Treatment Center</a></div>

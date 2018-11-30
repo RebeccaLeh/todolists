@@ -67,57 +67,90 @@ class ExcelOutput(object):
 
         ###SHELTER TYPE Function
           
-        def heading(familyType, familyFullName, startRow):
+        def headingvET(familyType, familyFullName, startRow):
                 header = [familyFullName, " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
                 #write worksheet header
                 worksheet_data.write_row(('A'+(str(3+ startRow))), header, cell_format_title)
             
                 #Emergency Shelter
                 dfES = familyType[familyType[11]=='Emergency Shelter']
+                dfESV = len(dfES[dfES[23]=="Yes"].index)
                 dfESHH = dfES[58].nunique()
                 dfESunq = len(dfES.index)
                 #Transitional Housing
                 dfTH = familyType[familyType[11] == 'Transitional Housing']
+                dfTHV = len(dfTH[dfTH[23]=="Yes"].index)
                 dfTHHH = dfTH[58].nunique()
                 dfTHunq = len(dfTH.index)
                 #Safe Haven
                 dfSH = familyType[familyType[11] == 'Safe Haven']
                 dfSHHH = dfSH[58].nunique()
+                dfSHV = len(dfSH[dfSH[23]=="Yes"].index)
                 dfSHunq = len(dfSH.index)
                 #Unsheltered
                 dfUN = familyType[familyType[12]=="No"]
                 dfUNHH = dfUN[58].nunique()
+                dfUNV = len(dfUN[dfUN[23]=="Yes"].index)
                 dfUNunq = len(dfUN.index)
 
                 #HH and uniue
                 household = ['Total Number of Households', " ",dfESHH, dfTHHH, dfSHHH, dfUNHH]
                 unique = ['Total Number of Persons', " ",dfESunq, dfTHunq, dfSHunq, dfUNunq]
+                vets = ['Total number of Veterans', "", dfESV, dfTHV, dfSHV, dfUNV]
                 #writetools
                 worksheet_data.write_row(('A'+(str(4 + startRow))), household)
                 worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
+                worksheet_data.write_row(('A'+(str(6+ startRow))), vets)
+        def heading(familyType, familyFullName, startRow):
+            header = [familyFullName, " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
+            #write worksheet header
+            worksheet_data.write_row(('A'+(str(3+ startRow))), header, cell_format_title)
+            
+            #Emergency Shelter
+            dfES = familyType[familyType[11]=='Emergency Shelter']
+            dfESHH = dfES[58].nunique()
+            dfESunq = len(dfES.index)
+            #Transitional Housing
+            dfTH = familyType[familyType[11] == 'Transitional Housing']
+            dfTHHH = dfTH[58].nunique()
+            dfTHunq = len(dfTH.index)
+            #Safe Haven
+            dfSH = familyType[familyType[11] == 'Safe Haven']
+            dfSHHH = dfSH[58].nunique()
+            dfSHunq = len(dfSH.index)
+            #Unsheltered
+            dfUN = familyType[familyType[12]=="No"]
+            dfUNHH = dfUN[58].nunique()
+            dfUNunq = len(dfUN.index)
 
-                #age
-                dfESu18 = len(dfES[dfES[13]<18].index)
-                dfESu24 = len(dfES[dfES[13].between(17,25, inclusive=False)].index)
-                dfESo24 = len(dfES[dfES[13]>24].index)
-                dfTHu18 = len(dfTH[dfTH[13]<18].index)
-                dfTHu24 = len(dfTH[dfTH[13].between(17,25, inclusive=False)].index)
-                dfTHo24 = len(dfTH[dfTH[13]>24].index)
-                dfSHu18 = len(dfSH[dfSH[13]<18].index)
-                dfSHu24 = len(dfSH[dfSH[13].between(17,25, inclusive=False)].index)
-                dfSHo24 = len(dfSH[dfSH[13]>24].index)
-                dfUNu18 = len(dfUN[dfUN[13]<18].index)
-                dfUNu24 = len(dfUN[dfUN[13].between(17,25, inclusive=False)].index)
-                dfUNo24 = len(dfUN[dfUN[13]>24].index)
+            #HH and uniue
+            household = ['Total Number of Households', " ",dfESHH, dfTHHH, dfSHHH, dfUNHH]
+            unique = ['Total Number of Persons', " ",dfESunq, dfTHunq, dfSHunq, dfUNunq]
+            #writetools
+            worksheet_data.write_row(('A'+(str(4 + startRow))), household)
+            worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
+            #age
+            dfESu18 = len(dfES[dfES[13]<18].index)
+            dfESu24 = len(dfES[dfES[13].between(17,25, inclusive=False)].index)
+            dfESo24 = len(dfES[dfES[13]>24].index)
+            dfTHu18 = len(dfTH[dfTH[13]<18].index)
+            dfTHu24 = len(dfTH[dfTH[13].between(17,25, inclusive=False)].index)
+            dfTHo24 = len(dfTH[dfTH[13]>24].index)
+            dfSHu18 = len(dfSH[dfSH[13]<18].index)
+            dfSHu24 = len(dfSH[dfSH[13].between(17,25, inclusive=False)].index)
+            dfSHo24 = len(dfSH[dfSH[13]>24].index)
+            dfUNu18 = len(dfUN[dfUN[13]<18].index)
+            dfUNu24 = len(dfUN[dfUN[13].between(17,25, inclusive=False)].index)
+            dfUNo24 = len(dfUN[dfUN[13]>24].index)
 
-                ################ age
-                u18 = ["", "Under Age 18", dfESu18, dfTHu18, dfSHu18, dfUNu18]
-                u24 = ["", "Age 18-24", dfESu24, dfTHu24, dfSHu24, dfUNu24]
-                o24 = ["", "Over Age 24", dfESo24, dfESo24, dfSHo24, dfUNo24]
-                #write age to sheet
-                worksheet_data.write_row(('A'+(str(6 + startRow))), u18)
-                worksheet_data.write_row(('A'+(str(7 + startRow))), u24)
-                worksheet_data.write_row(('A'+(str(8 + startRow))), o24)
+            ################ age
+            u18 = ["", "Under Age 18", dfESu18, dfTHu18, dfSHu18, dfUNu18]
+            u24 = ["", "Age 18-24", dfESu24, dfTHu24, dfSHu24, dfUNu24]
+            o24 = ["", "Over Age 24", dfESo24, dfESo24, dfSHo24, dfUNo24]
+            #write age to sheet
+            worksheet_data.write_row(('A'+(str(6 + startRow))), u18)
+            worksheet_data.write_row(('A'+(str(7 + startRow))), u24)
+            worksheet_data.write_row(('A'+(str(8 + startRow))), o24)
 
         def demograph(familyType, extraWords, startRow):
                 #Emergency Shelter
@@ -180,8 +213,7 @@ class ExcelOutput(object):
                 dfUNHis = len(dfUN[dfUN[ethnicity]== "1"].index)
                 dfUNNohi = len(dfUN[dfUN[ethnicity]== "No"].index)
                 #compile
-                ethn = ["Ethnicity"]
-                span = ["Ethnicity", extraWords]
+                ethn = ["Ethnicity", extraWords]
                 NOspan = ["", "Non-Hispanic/Non-Latino", dfESNohi, dfTHNohi, dfSHNohi, dfUNNohi]
                 span = [ "", "Hispanic/Latino", dfESHis, dfTHHis, dfSHHis, dfUNHis]
                 totspan = ["", "Total number of persons for which ethnicity is known"]                  ###need to sum
@@ -303,8 +335,8 @@ class ExcelOutput(object):
         worksheet_data = workbook.add_worksheet("Interview Data")
         worksheet_data.merge_range('A1:G1', 'PRE-EXTRAPOLATED DATA', merge_format)
         worksheet_data.merge_range('A2:G2', 'ALL HOUSEHOLDS', merge_format)
-        worksheet_data.merge_range('A84:G84', "VETERAN HOUSEHOLDS", merge_format)
-        worksheet_data.merge_range('A135:G135', "YOUTH HOUSEHOLDS", merge_format)
+        worksheet_data.merge_range('A79:G79', "VETERAN HOUSEHOLDS", merge_format)
+        worksheet_data.merge_range('A128:G128', "YOUTH HOUSEHOLDS", merge_format)
         #column names
         worksheet_data.set_column(2,7, 15)
         worksheet_data.set_column(1,1,30)
@@ -341,16 +373,16 @@ class ExcelOutput(object):
         noChildren = ADNOCH.append(ADSing)     
 
         ##shelter type
-        heading(noChildren, 'Households without Children', 27)
-        demograph(noChildren, "", 27)
+        heading(noChildren, 'Households without Children', 26)
+        demograph(noChildren, "", 26)
         ##########################################Get households with only children                                                     0
 
         #families with children
         childOnly = CHFAM.append(CHSing)
         
         ##shelter type
-        heading(childOnly, 'Households with only Chidlren (under18)', 54)
-        demograph(childOnly, "", 54)
+        heading(childOnly, 'Households with only Chidlren (under18)', 52)
+        demograph(childOnly, "", 50)
         ############################################Veterans
         veteran = 23
  
@@ -375,12 +407,14 @@ class ExcelOutput(object):
         vetsofvetCH = vetCH[vetCH[veteran]=="Yes"]
         vetsofvetNOCH = vetNOCH[vetNOCH[veteran]=="Yes"]
         #households with children
-        
-        demograph(vetsofvetCH, "(Veterans Only)", 80)
+        headingvET(vetCH, "Veteran HH with At Least One Adult and One Child", 77)
+
+
+        demograph(vetsofvetCH, "(Veterans Only)", 75)
         ############################################veterans households without childre
         ##shelter type
-        heading(vetNOCH, "Veteran HH without Children", 106)
-        demograph(vetsofvetNOCH, "(Veterans Only)", 105)
+        headingvET(vetNOCH, "Veteran HH without Children", 101)
+        demograph(vetsofvetNOCH, "(Veterans Only)", 99)
         #####chronic homelessness status
 
         ############################################youth unaccompanied                                                      
@@ -395,38 +429,21 @@ class ExcelOutput(object):
         PARYth = df.DataFrame()
         NOparyth = df.DataFrame()
         ythNum = UNYTH[58].unique()
+        childrenof = df.DataFrame()
         for ID in ythNum:
             HHSep = UNYTH.loc[UNYTH[58] ==ID]
             lenfam = HHSep[HHSep[6]=="Child"]
             if len(lenfam.index)>0:
                 PARYth = PARYth.append(HHSep)
+                childrenof = childrenof.append(lenfam)
             else:
                 NOparyth = NOparyth.append(HHSep)
         ythUnaccSi = UNYTH.append(YTSing)
         ythUnacc = ythUnaccSi.append(NOparyth)
 
-        ###unaccompanied youth write out 
-        demograph(ythUnacc, "(unaccompanied youth)", 135)
-       
-        #####chronic homelessness status
-
-        ############################################Parenting youth                                                         14
-        ##shelter type
-        headerPar = ["Parenting Youth Households", " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
-                #write worksheet header
-        worksheet_data.write_row(('A155'), headerPar, cell_format_title)
-
-        parentsOnly = PARYth[PARYth[6].isnull()]
-        parentsover18 = parentsOnly[parentsOnly[13]>17]
-        parentsunder18 = parentsOnly[parentsOnly[13]<18]
-
-        for ID in parentsover18:
-            youthFam = PARYth[PARYth[58]==ID]
-            childofYth = youthFam[youthFam[6]=="Child"]
-        for ID in parentsunder18:
-            childFam = PARYth[PARYth[58]==ID]
-            childofChild = childFam[childFam[6]=="Child"]
-        def parYthWrite(dataField, title, row):
+        def parYthWrite(familyType, title, startRow):
+            unique = ["", title, 0, 0 , 0 , 0]
+            if len(familyType)>0:
                 #Emergency Shelter
                 dfES = familyType[familyType[11]=='Emergency Shelter']
                 dfESunq = len(dfES.index)
@@ -442,27 +459,97 @@ class ExcelOutput(object):
 
                 #HH and uniue
                 unique = ["",title,dfESunq, dfTHunq, dfSHunq, dfUNunq]
-                #writetools
-                worksheet_data.write_row(('A'+(str(startRow))), unique)
+            #writetools
+            worksheet_data.write_row(('A'+(str(startRow))), unique)
+        
+        heading(ythUnacc, "Unaccompanied Youth Households", 126)
+        ###unaccompanied youth write out 
+        demograph(ythUnacc, "(unaccompanied youth)", 126)
+       
+        #####chronic homelessness status
+
+        ############################################Parenting youth                                                         14
+        ##shelter type
+        headerPar = ["Parenting Youth Households", " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
+                #write worksheet header
+        worksheet_data.write_row(('A155'), headerPar, cell_format_title)
+        parentsOnly = PARYth[PARYth[6].isnull()]
+        parentsover18 = parentsOnly[parentsOnly[13]>17]
+        parentsunder18 = parentsOnly[parentsOnly[13]<18]
+        
+        parentsoveruniq= parentsover18[58].unique()
+        otheruniq = childrenof[58].unique()
+        arcpy.AddMessage(parentsoveruniq)
+        
+        parentsunderuniq= parentsunder18[58].unique()
+        arcpy.AddMessage(parentsunderuniq)
+        childofYth = df.DataFrame()
+        childofChild = df.DataFrame()
+        for ID in parentsoveruniq:
+            youthFam = childrenof.loc[childrenof[58]==ID]
+            childofYth = childofYth.append(youthFam)
+
+            arcpy.AddMessage(childofYth)
+        for ID in parentsunderuniq:
+            arcpy.AddMessage(parentsunderuniq)
+            childFam = childrenof.loc[childrenof[58]==ID]
+            childofChild =  childofChild.append(childFam)
+
         parYthWrite(parentsunder18, "Number of parenting youth under Age 18",160)
-        #header(PARYth, 'Parenting Youth Households', 152)
-        demograph(parentsOnly, "(youth parents only)", 164)
+        parYthWrite(parentsover18, "Number of parenting youth Age 18-24",162)
+        parYthWrite(childofYth, "       Children in HH with parenting youth Age 18-24", 163)
+        parYthWrite(childofChild, "     Children in HH with parenting youth under Age 18",161)
+        demograph(parentsOnly, "(youth parents only)", 155)
         #####chronic homelessness status
         
+        def parYthTop(familyType, title, startRow):
+            unique = [title, "", 0, 0 , 0 , 0]
+            if len(familyType)>0:
+                #Emergency Shelter
+                dfES = familyType[familyType[11]=='Emergency Shelter']
+                dfESunq = len(dfES.index)
+                #Transitional Housing
+                dfTH = familyType[familyType[11] == 'Transitional Housing']
+                dfTHunq = len(dfTH.index)
+                #Safe Haven
+                dfSH = familyType[familyType[11] == 'Safe Haven']
+                dfSHunq = len(dfSH.index)
+                #Unsheltered
+                dfUN = familyType[familyType[12]=="No"]
+                dfUNunq = len(dfUN.index)
+                #HH and uniue
+                unique = [title,"", dfESunq, dfTHunq, dfSHunq, dfUNunq]
+
+            #writetools
+            worksheet_data.write_row(('A'+(str(startRow))), unique)
+
+        parYthTop(parentsOnly, "Total Number of Parenting Youth Households", 156)
+        parYthTop(PARYth, "Total Number of Persons in Parenting Youth Households", 157)
+        parYthTop(parentsOnly, "Total Parenting Youth", 158)
+        parYthTop(childrenof, "Total Children in Parenting Youth Household", 159)
         ##############################################Adult aids, mental illness etc.
 
+
+
+
+
+
+        ####Final Formatting
         worksheet_data.write_array_formula("C14:F14", "{=SUM(C10:C13, F:10:F13)}")
         def sumppl(column, i):
                 formula = "{=SUM("+column+(str(i-4)+":"+column+(str(i-1))+")}")
                 worksheet_data.write_array_formula(column+(str(i))+column+(str(i)), formula)
-        totgend = {("C",14), ("D",14),("E",14), ("F",14),("C",41), ("D",41),("E",41), ("F",41),("C",64), ("D",64),("E",64), ("F",64),("C",89), ("D",89), ("E",89), ("F",89),("C",114), ("D",114),("E",114), ("F",114),("C",140), ("D",140),("E",140), ("F",140),("C",169), ("D",169),("E",169), ("F",169)}
+        totgend = {("C",14), ("D",14),("E",14), ("F",14),("C",40), ("D",40),("E",40), ("F",40),("C",64), ("D",64),("E",64), ("F",64),("C",89), ("D",89), ("E",89), ("F",89),("C",113), ("D",113),("E",113), ("F",113),("C",146), ("D",146),("E",146), ("F",146),("C",178), ("D",175),("E",175), ("F",175)}
         for a,b in totgend:
             sumppl(a,b)
         ##final summation
         rows = list(range(4,29))
-        rows2 = list(range(31,56))
-        rows3 = list(range(58,82))
-
+        rows2 = list(range(30,55))
+        rows3 = list(range(56,79))
+        rows4 = list(range(81,103))
+        rows5 = list(range(105,127))
+        rows6 = list(range(130,155))
+        rows7 = list(range(156,181))
         def rowsum(rows):
             for i in rows:
                 formula = "{=SUM(C"+(str(i)+":F"+(str(i))+")}")
@@ -470,6 +557,10 @@ class ExcelOutput(object):
         rowsum(rows)
         rowsum(rows2)
         rowsum(rows3)
+        rowsum(rows4)
+        rowsum(rows5)
+        rowsum(rows6)
+        rowsum(rows7)
         #worksheet_data.write_array_formula('G5:G5', "{=SUM(C5:F5)}")
         workbook.close()
 
@@ -479,5 +570,3 @@ class ExcelOutput(object):
 
 
     ##############################scratch
-
-  

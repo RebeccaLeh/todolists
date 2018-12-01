@@ -68,6 +68,7 @@ class ExcelOutput(object):
         ###SHELTER TYPE Function
           
         def headingvET(familyType, familyFullName, startRow):
+
                 header = [familyFullName, " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
                 #write worksheet header
                 worksheet_data.write_row(('A'+(str(3+ startRow))), header, cell_format_title)
@@ -102,6 +103,7 @@ class ExcelOutput(object):
                 worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
                 worksheet_data.write_row(('A'+(str(6+ startRow))), vets)
         def heading(familyType, familyFullName, startRow):
+
             header = [familyFullName, " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
             #write worksheet header
             worksheet_data.write_row(('A'+(str(3+ startRow))), header, cell_format_title)
@@ -153,21 +155,39 @@ class ExcelOutput(object):
             worksheet_data.write_row(('A'+(str(8 + startRow))), o24)
 
         def demograph(familyType, extraWords, startRow):
+                bold = workbook.add_format({'bold':True})
+
+                #chronic
+                disab = familyType[(familyType[31]=="Yes") | (familyType[32]=="Yes") | (familyType[36]=="Yes")]
+                chro = disab[(disab[26]=="4 or more times") & (disab[27]>364)]
+                chro1 = disab[disab[25]>364]
+                chro2 = chro1.append(chro)
+                uniqChro = chro2[58].unique()
+                chronic = df.DataFrame()
+                if len(uniqChro)>1:
+                    for ID in uniqChro:
+                        HHSep = familyType[familyType[58]==ID]
+                        chronic.append(HHSep)
+
                 #Emergency Shelter
                 dfES = familyType[familyType[11]=='Emergency Shelter']
+                dfESChro = len(chronic[chronic[11]=="Emergency Shelter"].index)
                 dfESHH = dfES[58].nunique()
                 dfESunq = len(dfES.index)
                 #Transitional Housing
                 dfTH = familyType[familyType[11] == 'Transitional Housing']
                 dfTHHH = dfTH[58].nunique()
+                dfTHChro = len(chronic[chronic[11]=="Transitional Housing"].index)
                 dfTHunq = len(dfTH.index)
                 #Safe Haven
                 dfSH = familyType[familyType[11] == 'Safe Haven']
                 dfSHHH = dfSH[58].nunique()
+                dfSHChro = len(chronic[chronic[11]=="Safe Haven"].index)
                 dfSHunq = len(dfSH.index)
                 #Unsheltered
                 dfUN = familyType[familyType[12]=="No"]
                 dfUNHH = dfUN[58].nunique()
+                dfUNChro = len(chronic[chronic[12]=="No"].index)
                 dfUNunq = len(dfUN.index)
 
                 #gender
@@ -195,7 +215,7 @@ class ExcelOutput(object):
                 noncon = ["", "Gender Non-Conforming", dfESN, dfTHN, dfSHT, dfUNN]
                 totgen = [" ", "Total number of persons for which gender is known"]                 ##need to sum here
                 #write gender
-                worksheet_data.write_row(('A'+(str(9 + startRow))), gender)
+                worksheet_data.write_row(('A'+(str(9 + startRow))), gender, bold)
                 worksheet_data.write_row(('A'+(str(10 + startRow))), female)
                 worksheet_data.write_row(('A'+(str(11 + startRow))), male)
                 worksheet_data.write_row(('A'+(str(12 + startRow))), trans)
@@ -218,7 +238,7 @@ class ExcelOutput(object):
                 span = [ "", "Hispanic/Latino", dfESHis, dfTHHis, dfSHHis, dfUNHis]
                 totspan = ["", "Total number of persons for which ethnicity is known"]                  ###need to sum
                 #write
-                worksheet_data.write_row(('A'+(str(15 +startRow))), ethn) 
+                worksheet_data.write_row(('A'+(str(15 +startRow))), ethn, bold) 
                 worksheet_data.write_row(('A'+(str(16 + startRow))), NOspan) 
                 worksheet_data.write_row(('A'+(str(17 + startRow))), span)
                 worksheet_data.write_row(('A'+(str(18 + startRow))), totspan)
@@ -259,7 +279,7 @@ class ExcelOutput(object):
                 mult = ["", "Multiple Races", dfESMul, dfTHMul, dfSHMul, dfUNMul]
                 totrac= ["", "Total Number of persons for which race is known"]                                 ##need to calculate
                 #WRITE WORKSHEET
-                worksheet_data.write_row(('A'+(str(19 + startRow))), racehead)
+                worksheet_data.write_row(('A'+(str(19 + startRow))), racehead, bold)
                 worksheet_data.write_row(('A'+(str(20 + startRow))), white)
                 worksheet_data.write_row(('A'+(str(21 + startRow))), black)
                 worksheet_data.write_row(('A'+(str(22 + startRow))), asian)
@@ -268,19 +288,12 @@ class ExcelOutput(object):
                 worksheet_data.write_row(('A'+(str(25 + startRow))), mult)
                 worksheet_data.write_row(('A'+(str(26 + startRow))), totrac)
 
-                #chronic
-                disab = familyType[(familyType[31]=="Yes") | (familyType[32]=="Yes") | (familyType[36]=="Yes")]
-                chro = disab[(disab[26]=="4 or more times") & (disab[27]>364)]
-                chro1 = disab[disab[25]>364]
-                chro2 = chro1.append(chro)
-                uniqChro = chro2[58].unique()
-                chronic = df.DataFrame()
-                for ID in uniqChro:
-                    HHSep = familyType[familyType[58]=="ID"]
-                    chronic.append(HHSep)
-            #habitual
-                #dfES
 
+            #habitual
+                chronicHead = ["Chronically Homeless"]
+                chronicHom = ["", "Total Number of Persons",dfESChro, dfTHChro, dfSHChro, dfUNChro]
+                worsheet_data.wrote_row(('A'+(str(27 + startRow))), chronicHead)
+                worsheet_data.wrote_row(('A'+(str(27 + startRow))), chronicHom)
         #get field names to use in query 
         fields = arcpy.ListFields(pitCount)
         fieldNames = []
@@ -479,19 +492,13 @@ class ExcelOutput(object):
         
         parentsoveruniq= parentsover18[58].unique()
         otheruniq = childrenof[58].unique()
-        arcpy.AddMessage(parentsoveruniq)
-        
         parentsunderuniq= parentsunder18[58].unique()
-        arcpy.AddMessage(parentsunderuniq)
         childofYth = df.DataFrame()
         childofChild = df.DataFrame()
         for ID in parentsoveruniq:
             youthFam = childrenof.loc[childrenof[58]==ID]
             childofYth = childofYth.append(youthFam)
-
-            arcpy.AddMessage(childofYth)
         for ID in parentsunderuniq:
-            arcpy.AddMessage(parentsunderuniq)
             childFam = childrenof.loc[childrenof[58]==ID]
             childofChild =  childofChild.append(childFam)
 
@@ -535,21 +542,36 @@ class ExcelOutput(object):
 
 
         ####Final Formatting
-        worksheet_data.write_array_formula("C14:F14", "{=SUM(C10:C13, F:10:F13)}")
+        #gender
         def sumppl(column, i):
                 formula = "{=SUM("+column+(str(i-4)+":"+column+(str(i-1))+")}")
                 worksheet_data.write_array_formula(column+(str(i))+column+(str(i)), formula)
-        totgend = {("C",14), ("D",14),("E",14), ("F",14),("C",40), ("D",40),("E",40), ("F",40),("C",64), ("D",64),("E",64), ("F",64),("C",89), ("D",89), ("E",89), ("F",89),("C",113), ("D",113),("E",113), ("F",113),("C",146), ("D",146),("E",146), ("F",146),("C",178), ("D",175),("E",175), ("F",175)}
-        for a,b in totgend:
+        #ethnicity
+        def sumeth(column, i):
+                formula = "{=SUM("+column+(str(i-2)+":"+column+(str(i-1))+")}")
+                worksheet_data.write_array_formula(column+(str(i))+column+(str(i)), formula)
+        #race
+        def sumrace(column, i):
+                formula = "{=SUM("+column+(str(i-6)+":"+column+(str(i-1))+")}")
+                worksheet_data.write_array_formula(column+(str(i))+column+(str(i)), formula)
+        #groups
+        totgend = {("C",14), ("D",14),("E",14), ("F",14),("C",40), ("D",40),("E",40), ("F",40),("C",64), ("D",64),("E",64), ("F",64),("C",89), ("D",89), ("E",89), ("F",89),("C",113), ("D",113),("E",113), ("F",113),("C",140), ("D",140),("E",140), ("F",140),("C",169), ("D",169),("E",169), ("F",169)}
+        toteth = {("C",18), ("D",18),("E",18), ("F",18),("C",44), ("D",44),("E",44), ("F",44),("C",68), ("D",68),("E",68), ("F",68),("C",93), ("D",93), ("E",93), ("F",93),("C",117), ("D",117),("E",117), ("F",117),("C",144), ("D",144),("E",144), ("F",144),("C",173), ("D",173),("E",173), ("F",173)}
+        totrace = {("C",26), ("D",26),("E",26), ("F",26),("C",52), ("D",52),("E",52), ("F",52),("C",76), ("D",76),("E",76), ("F",76),("C",101), ("D",101), ("E",101), ("F",101),("C",125), ("D",125),("E",125), ("F",125),("C",152), ("D",152),("E",152), ("F",152),("C",181), ("D",181),("E",181), ("F",181)}
+        for (a,b) in totgend:
             sumppl(a,b)
+        for (a,b) in toteth:
+            sumeth(a,b)
+        for (a,b) in totrace:
+            sumrace(a,b)
         ##final summation
         rows = list(range(4,29))
         rows2 = list(range(30,55))
         rows3 = list(range(56,79))
         rows4 = list(range(81,103))
-        rows5 = list(range(105,127))
+        rows5 = list(range(105,128))
         rows6 = list(range(130,155))
-        rows7 = list(range(156,181))
+        rows7 = list(range(156,182))
         def rowsum(rows):
             for i in rows:
                 formula = "{=SUM(C"+(str(i)+":F"+(str(i))+")}")

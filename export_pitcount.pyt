@@ -37,7 +37,128 @@ class ExcelOutput(object):
             parameterType="Required",
             direction="Output")
 
-        params = [inputLayer, outputLocation]
+        relationshipID = arcpy.Parameter(
+            displayName="Relationship to Head of Household",
+            name="relationship",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+        relationshipID.parameterDependencies = [inputLayer.name]
+
+        sleep_loc = arcpy.Parameter(
+            displayName="Sleep Location",
+            name="sleep",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+        sleep_loc.parameterDependencies = [inputLayer.name]
+
+        ageofInd = arcpy.Parameter(
+            displayName="Age",
+            name="asdf",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        genderofInd = arcpy.Parameter(
+            displayName="Gender",
+            name="fdxv",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        ethnofInd = arcpy.Parameter(
+            displayName="Ethnicity",
+            name="werfsd",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        raceInd = arcpy.Parameter(
+            displayName="Race",
+            name="iolkj",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        parID = arcpy.Parameter(
+            displayName="Parent ID (GUID of HH)",
+            name="tgbxs",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        timesHom = arcpy.Parameter(
+            displayName="Number of Times Homeless",
+            name="aweds",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        daysHom = arcpy.Parameter(
+            displayName="Number of Days Homeless",
+            name="zcvs",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        totDaysHom = arcpy.Parameter(
+            displayName="Number of Days Homeless (over last 3 years)",
+            name="sdfzs",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        vetInd = arcpy.Parameter(
+            displayName="Veteran Status",
+            name="sdfzv",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        shelteredInd = arcpy.Parameter(
+            displayName="Sheltered Individuals",
+            name="weru",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        HIVInd = arcpy.Parameter(
+            displayName="HIV/AIDS Status",
+            name="jpioi",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        mentInd = arcpy.Parameter(
+            displayName="Mental Illness",
+            name="hklhj",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        subInd = arcpy.Parameter(
+            displayName="Substance Abuse",
+            name="hjklh",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        domInd = arcpy.Parameter(
+            displayName="Homeless Because of Domestic Violence",
+            name="lkhj",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input")
+
+        timesHom = arcpy.Parameter(
+            displayName="Number of Times Homeless",
+            name="hjkln",
+            datatype="Field",
+            parameterType="Required",
+            direction="input")
+
+        params = [inputLayer, outputLocation, relationshipID , sleep_loc, ageofInd, genderofInd, ethnofInd, raceInd, parID, timesHom, daysHom, totDaysHom, vetInd, shelteredInd, HIVInd, mentInd, subInd, domInd, timesHom]
 
         return params
 
@@ -49,6 +170,14 @@ class ExcelOutput(object):
         """Modify the values and properties of parameters before internal
         validation is performed.  This method is called whenever a parameter
         has been changed."""
+        fields = {x.name for x in arcpy.Describe(parameters[0].valueAsText).fields}
+        fieldNames = ("relationship",2)
+        def  fieldIs(field, param):
+            if field in fields:
+                parameters[param].value = field 
+        fieldIs("relationship",2)
+        fieldIs("sleep_location_individual",3)
+        fieldIs("age",4)
         return
 
     def updateMessages(self, parameters):
@@ -61,9 +190,27 @@ class ExcelOutput(object):
 
         arcpy.AddMessage("preparing Excel file...")
         
-        inputLayer, outputLocation = parameters
+        inputLayer, outputLocation, relationshipID , sleep_loc, ageofInd, genderofInd, ethnofInd, raceInd, parID, timesHom, daysHom, totDaysHom, vetInd, shelteredInd, HIVInd, mentInd, subInd, domInd, timesHom = parameters
         pitCount = inputLayer.valueAsText
         xLocate = outputLocation.valueAsText
+
+
+        relate1 =
+        sleeplo1 =
+        age1 =
+        gend1 =
+        ethn1 = 
+        race1 =
+        parid1 =
+        timhom1 =
+        numday1 =
+        totdayhom1 =
+        vet1 =
+        shelt1 =
+        hiv1 =
+        mental1 =
+        substan1 =
+        domvi1 =
 
         ###SHELTER TYPE Function
           
@@ -163,7 +310,8 @@ class ExcelOutput(object):
                 chro1 = disab[disab[25]>364]
                 chro2 = chro1.append(chro)
                 uniqChro = chro2[58].unique()
-                chronic = df.DataFrame()
+                #create an empty dataframe to use 
+                chronic = familyType[(familyType[31]=="nonsense")]
                 if len(uniqChro)>1:
                     for ID in uniqChro:
                         HHSep = familyType[familyType[58]==ID]
@@ -172,22 +320,26 @@ class ExcelOutput(object):
                 #Emergency Shelter
                 dfES = familyType[familyType[11]=='Emergency Shelter']
                 dfESChro = len(chronic[chronic[11]=="Emergency Shelter"].index)
+                dfESChH = chronic[chronic[11]=="Emergency Shelter"].nunique()
                 dfESHH = dfES[58].nunique()
                 dfESunq = len(dfES.index)
                 #Transitional Housing
                 dfTH = familyType[familyType[11] == 'Transitional Housing']
                 dfTHHH = dfTH[58].nunique()
                 dfTHChro = len(chronic[chronic[11]=="Transitional Housing"].index)
+                dfTHChH = chronic[chronic[11]=="Transitional Housing"].nunique()
                 dfTHunq = len(dfTH.index)
                 #Safe Haven
                 dfSH = familyType[familyType[11] == 'Safe Haven']
                 dfSHHH = dfSH[58].nunique()
                 dfSHChro = len(chronic[chronic[11]=="Safe Haven"].index)
+                dfSHChH = chronic[chronic[11]=="Safe Haven"].nunique()
                 dfSHunq = len(dfSH.index)
                 #Unsheltered
                 dfUN = familyType[familyType[12]=="No"]
                 dfUNHH = dfUN[58].nunique()
                 dfUNChro = len(chronic[chronic[12]=="No"].index)
+                dfUNChH = chronic[chronic[12]=="No"].index.nunique()
                 dfUNunq = len(dfUN.index)
 
                 #gender
@@ -250,25 +402,26 @@ class ExcelOutput(object):
                 dfESAs = len(dfES[dfES[race]== "Asian"].index)
                 dfESAi = len(dfES[dfES[race]== "AmercanIndian"].index)
                 dfESHi = len(dfES[dfES[race]=="NativeHawaiian"].index)
-                dfESMul  = len(dfES[dfES[race]=='Multiple'].index)
+                dfESMul  = len(dfES[dfES[race].str.contains(',')].index)
                 dfTHWh = len(dfTH[dfTH[race]== "White"].index)
                 dfTHBl = len(dfTH[dfTH[race]== "Black"].index)
                 dfTHAs = len(dfES[dfTH[race]== "Asian"].index)
                 dfTHAi = len(dfTH[dfTH[race]== "AmercanIndian"].index)
                 dfTHHi = len(dfTH[dfTH[race]=="NativeHawaiian"].index)
-                dfTHMul  = len(dfTH[dfTH[race]=='Multiple'].index)
+                dfTHMul  = len(dfTH[dfTH[race].str.contains(',')].index)
                 dfSHWh = len(dfSH[dfSH[race]== "White"].index)
                 dfSHBl = len(dfSH[dfSH[race]== "Black"].index)
                 dfSHAs = len(dfSH[dfSH[race]== "Asian"].index)
                 dfSHAi = len(dfSH[dfSH[race]== "AmercanIndian"].index)
                 dfSHHi = len(dfSH[dfSH[race]=="NativeHawaiian"].index)
-                dfSHMul  = len(dfSH[dfSH[race]=='Multiple'].index)
+                dfSHMul  = len(dfSH[dfSH[race].str.contains(',')].index)
                 dfUNWh = len(dfUN[dfUN[race]== "White"].index)
                 dfUNBl = len(dfUN[dfUN[race]== "Black"].index)
                 dfUNAs = len(dfUN[dfUN[race]== "Asian"].index)
                 dfUNAi = len(dfUN[dfUN[race]== "AmercanIndian"].index)
                 dfUNHi = len(dfUN[dfUN[race]=="NativeHawaiian"].index)
-                dfUNMul  = len(dfUN[dfUN[race]=='Multiple'].index)
+                dfUNMul  = len(dfUN[dfUN[race].str.contains(',')].index)
+         
                 #summup
                 racehead = ["Race", extraWords]
                 white = ["", "White", dfESWh, dfTHWh, dfSHWh, dfUNWh]
@@ -290,10 +443,16 @@ class ExcelOutput(object):
 
 
             #habitual
-                chronicHead = ["Chronically Homeless"]
-                chronicHom = ["", "Total Number of Persons",dfESChro, dfTHChro, dfSHChro, dfUNChro]
-                worsheet_data.wrote_row(('A'+(str(27 + startRow))), chronicHead)
-                worsheet_data.wrote_row(('A'+(str(27 + startRow))), chronicHom)
+                chronicHom = ["", "Total Number of Households", 0,0,0,0]
+                chronicHH = ["", "Total Number of Persons", 0,0,0,0]
+                if len(chronic)>0:
+                    chronicHH = ["", "Total Number of Households", dfESChH, dfTHChH, dfSHChH, dfUNChH]
+                    chronicHom = ["", "Total Number of Persons",dfESChro, dfTHChro, dfSHChro, dfUNChro]
+                chronicHead = ["Chronically Homeless", "(all)"]
+                
+                worksheet_data.write_row(('A'+(str(27 + startRow))), chronicHead, bold)
+                worksheet_data.write_row(('A'+(str(28 + startRow))), chronicHom)
+                worksheet_data.write_row(('A'+(str(29 + startRow))), chronicHH)
         #get field names to use in query 
         fields = arcpy.ListFields(pitCount)
         fieldNames = []
@@ -345,15 +504,17 @@ class ExcelOutput(object):
             'font_size':14,
             'font_color':"white"})
         #title header
+        bold = workbook.add_format({'bold':True})
         worksheet_data = workbook.add_worksheet("Interview Data")
         worksheet_data.merge_range('A1:G1', 'PRE-EXTRAPOLATED DATA', merge_format)
         worksheet_data.merge_range('A2:G2', 'ALL HOUSEHOLDS', merge_format)
-        worksheet_data.merge_range('A79:G79', "VETERAN HOUSEHOLDS", merge_format)
-        worksheet_data.merge_range('A128:G128', "YOUTH HOUSEHOLDS", merge_format)
+        worksheet_data.merge_range('A84:G84', "VETERAN HOUSEHOLDS", merge_format)
+        worksheet_data.merge_range('A134:G134', "YOUTH HOUSEHOLDS", merge_format)
+        worksheet_data.merge_range('A192:G192', "ADDITIONAL HOMELESS POPULATIONS", merge_format)
         #column names
         worksheet_data.set_column(2,7, 15)
         worksheet_data.set_column(1,1,30)
-        worksheet_data.set_column(0,0,40 )
+        worksheet_data.set_column(0,0,40, bold )
         #usable formating for title of sub headings
         cell_format_title = workbook.add_format({'bold':True, 'bg_color':'#C0C0C0'})
         cell_format_total = workbook.add_format({'bold':True})
@@ -386,16 +547,16 @@ class ExcelOutput(object):
         noChildren = ADNOCH.append(ADSing)     
 
         ##shelter type
-        heading(noChildren, 'Households without Children', 26)
-        demograph(noChildren, "", 26)
+        heading(noChildren, 'Households without Children', 27)
+        demograph(noChildren, "", 27)
         ##########################################Get households with only children                                                     0
 
         #families with children
         childOnly = CHFAM.append(CHSing)
         
         ##shelter type
-        heading(childOnly, 'Households with only Chidlren (under18)', 52)
-        demograph(childOnly, "", 50)
+        heading(childOnly, 'Households with only Chidlren (under18)', 54)
+        demograph(childOnly, "", 54)
         ############################################Veterans
         veteran = 23
  
@@ -420,14 +581,12 @@ class ExcelOutput(object):
         vetsofvetCH = vetCH[vetCH[veteran]=="Yes"]
         vetsofvetNOCH = vetNOCH[vetNOCH[veteran]=="Yes"]
         #households with children
-        headingvET(vetCH, "Veteran HH with At Least One Adult and One Child", 77)
-
-
-        demograph(vetsofvetCH, "(Veterans Only)", 75)
+        headingvET(vetCH, "Veteran HH with At Least One Adult and One Child", 82)
+        demograph(vetsofvetCH, "(Veterans Only)", 79)
         ############################################veterans households without childre
         ##shelter type
-        headingvET(vetNOCH, "Veteran HH without Children", 101)
-        demograph(vetsofvetNOCH, "(Veterans Only)", 99)
+        headingvET(vetNOCH, "Veteran HH without Children", 106)
+        demograph(vetsofvetNOCH, "(Veterans Only)", 104)
         #####chronic homelessness status
 
         ############################################youth unaccompanied                                                      
@@ -475,9 +634,9 @@ class ExcelOutput(object):
             #writetools
             worksheet_data.write_row(('A'+(str(startRow))), unique)
         
-        heading(ythUnacc, "Unaccompanied Youth Households", 126)
+        heading(ythUnacc, "Unaccompanied Youth Households", 132)
         ###unaccompanied youth write out 
-        demograph(ythUnacc, "(unaccompanied youth)", 126)
+        demograph(ythUnacc, "(unaccompanied youth)", 132)
        
         #####chronic homelessness status
 
@@ -485,7 +644,7 @@ class ExcelOutput(object):
         ##shelter type
         headerPar = ["Parenting Youth Households", " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
                 #write worksheet header
-        worksheet_data.write_row(('A155'), headerPar, cell_format_title)
+        worksheet_data.write_row(('A162'), headerPar, cell_format_title)
         parentsOnly = PARYth[PARYth[6].isnull()]
         parentsover18 = parentsOnly[parentsOnly[13]>17]
         parentsunder18 = parentsOnly[parentsOnly[13]<18]
@@ -502,11 +661,11 @@ class ExcelOutput(object):
             childFam = childrenof.loc[childrenof[58]==ID]
             childofChild =  childofChild.append(childFam)
 
-        parYthWrite(parentsunder18, "Number of parenting youth under Age 18",160)
-        parYthWrite(parentsover18, "Number of parenting youth Age 18-24",162)
-        parYthWrite(childofYth, "       Children in HH with parenting youth Age 18-24", 163)
-        parYthWrite(childofChild, "     Children in HH with parenting youth under Age 18",161)
-        demograph(parentsOnly, "(youth parents only)", 155)
+        parYthWrite(parentsunder18, "Number of parenting youth under Age 18",167)
+        parYthWrite(parentsover18, "Number of parenting youth Age 18-24",169)
+        parYthWrite(childofYth, "       Children in HH with parenting youth Age 18-24", 170)
+        parYthWrite(childofChild, "     Children in HH with parenting youth under Age 18",168)
+        demograph(parentsOnly, "(youth parents only)", 162)
         #####chronic homelessness status
         
         def parYthTop(familyType, title, startRow):
@@ -530,17 +689,11 @@ class ExcelOutput(object):
             #writetools
             worksheet_data.write_row(('A'+(str(startRow))), unique)
 
-        parYthTop(parentsOnly, "Total Number of Parenting Youth Households", 156)
-        parYthTop(PARYth, "Total Number of Persons in Parenting Youth Households", 157)
-        parYthTop(parentsOnly, "Total Parenting Youth", 158)
-        parYthTop(childrenof, "Total Children in Parenting Youth Household", 159)
+        parYthTop(parentsOnly, "Total Number of Parenting Youth Households", 163)
+        parYthTop(PARYth, "Total Number of Persons in Parenting Youth Households", 164)
+        parYthTop(parentsOnly, "Total Parenting Youth", 165)
+        parYthTop(childrenof, "Total Children in Parenting Youth Household", 166)
         ##############################################Adult aids, mental illness etc.
-
-
-
-
-
-
         ####Final Formatting
         #gender
         def sumppl(column, i):
@@ -555,9 +708,9 @@ class ExcelOutput(object):
                 formula = "{=SUM("+column+(str(i-6)+":"+column+(str(i-1))+")}")
                 worksheet_data.write_array_formula(column+(str(i))+column+(str(i)), formula)
         #groups
-        totgend = {("C",14), ("D",14),("E",14), ("F",14),("C",40), ("D",40),("E",40), ("F",40),("C",64), ("D",64),("E",64), ("F",64),("C",89), ("D",89), ("E",89), ("F",89),("C",113), ("D",113),("E",113), ("F",113),("C",140), ("D",140),("E",140), ("F",140),("C",169), ("D",169),("E",169), ("F",169)}
-        toteth = {("C",18), ("D",18),("E",18), ("F",18),("C",44), ("D",44),("E",44), ("F",44),("C",68), ("D",68),("E",68), ("F",68),("C",93), ("D",93), ("E",93), ("F",93),("C",117), ("D",117),("E",117), ("F",117),("C",144), ("D",144),("E",144), ("F",144),("C",173), ("D",173),("E",173), ("F",173)}
-        totrace = {("C",26), ("D",26),("E",26), ("F",26),("C",52), ("D",52),("E",52), ("F",52),("C",76), ("D",76),("E",76), ("F",76),("C",101), ("D",101), ("E",101), ("F",101),("C",125), ("D",125),("E",125), ("F",125),("C",152), ("D",152),("E",152), ("F",152),("C",181), ("D",181),("E",181), ("F",181)}
+        totgend = {("C",14), ("D",14),("E",14), ("F",14),("C",41), ("D",41),("E",41), ("F",41),("C",68), ("D",68),("E",68), ("F",68),("C",93), ("D",93), ("E",93), ("F",93),("C",118), ("D",118),("E",118), ("F",118),("C",146), ("D",146),("E",146), ("F",146),("C",176), ("D",176),("E",176), ("F",176)}
+        toteth = {("C",18), ("D",18),("E",18), ("F",18),("C",45), ("D",45),("E",45), ("F",45),("C",72), ("D",72),("E",72), ("F",72),("C",97), ("D",97), ("E",97), ("F",97),("C",122), ("D",122),("E",122), ("F",122),("C",150), ("D",150),("E",150), ("F",150),("C",180), ("D",180),("E",180), ("F",180)}
+        totrace = {("C",26), ("D",26),("E",26), ("F",26),("C",53), ("D",53),("E",53), ("F",53),("C",80), ("D",80),("E",80), ("F",80),("C",105), ("D",105), ("E",105), ("F",105),("C",130), ("D",130),("E",130), ("F",130),("C",158), ("D",158),("E",158), ("F",158),("C",188), ("D",188),("E",188), ("F",188)}
         for (a,b) in totgend:
             sumppl(a,b)
         for (a,b) in toteth:
@@ -565,13 +718,14 @@ class ExcelOutput(object):
         for (a,b) in totrace:
             sumrace(a,b)
         ##final summation
-        rows = list(range(4,29))
-        rows2 = list(range(30,55))
-        rows3 = list(range(56,79))
-        rows4 = list(range(81,103))
-        rows5 = list(range(105,128))
-        rows6 = list(range(130,155))
-        rows7 = list(range(156,182))
+        rows = list(range(4,30))
+        rows2 = list(range(31,57))
+        rows3 = list(range(58,84))
+        rows4 = list(range(86,109))
+        rows5 = list(range(110,134))
+        rows6 = list(range(136,162))
+        rows7 = list(range(163,192))
+        rows8 = list(range(192,197))
         def rowsum(rows):
             for i in rows:
                 formula = "{=SUM(C"+(str(i)+":F"+(str(i))+")}")
@@ -583,9 +737,31 @@ class ExcelOutput(object):
         rowsum(rows5)
         rowsum(rows6)
         rowsum(rows7)
-        #worksheet_data.write_array_formula('G5:G5', "{=SUM(C5:F5)}")
-        workbook.close()
+        rowsum(rows8)
 
+        HIV = panda[panda[36]=="Yes"]
+        DoVi = panda[panda[38] =="Yes"]
+        ment = panda[panda[31]=="Yes"]
+        sub = panda[panda[30]=="Yes"]
+       
+        def adultD(thing, name, row):
+            dfES = len(thing[thing[11]=='Emergency Shelter'].index)
+            dfSH = len(thing[thing[11] == 'Safe Haven'].index)
+            dfUN = len(thing[thing[12]=="No"].index)
+            all =  [name, "", dfES, "NA", dfSH, dfUN] 
+            worksheet_data.write_row(('A'+(str(row))), all)
+
+        header = ["", " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
+        #write worksheet header
+        worksheet_data.write_row('A193', header, cell_format_title)
+        
+        adultD(ment, "Adults with Serious Mental Illness", 194)
+        adultD(sub, "Adults with a Substance Abuse Disorder", 195)
+        adultD(HIV, "Adults with HIV/AIDS", 196)
+        adultD(DoVi, "Adult Survivors of Domestic Violence", 197)
+
+        #write
+        workbook.close()
       
         return
 

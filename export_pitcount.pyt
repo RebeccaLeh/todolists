@@ -37,128 +37,7 @@ class ExcelOutput(object):
             parameterType="Required",
             direction="Output")
 
-        #relationshipID = arcpy.Parameter(
-        #    displayName="Relationship to Head of Household",
-        #    name="relationship",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-        #relationshipID.parameterDependencies = [inputLayer.name]
-
-        #sleep_loc = arcpy.Parameter(
-        #    displayName="Sleep Location",
-        #    name="sleep",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-        #sleep_loc.parameterDependencies = [inputLayer.name]
-
-        #ageofInd = arcpy.Parameter(
-        #    displayName="Age",
-        #    name="asdf",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #genderofInd = arcpy.Parameter(
-        #    displayName="Gender",
-        #    name="fdxv",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #ethnofInd = arcpy.Parameter(
-        #    displayName="Ethnicity",
-        #    name="werfsd",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #raceInd = arcpy.Parameter(
-        #    displayName="Race",
-        #    name="iolkj",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #parID = arcpy.Parameter(
-        #    displayName="Parent ID (GUID of HH)",
-        #    name="tgbxs",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #timesHom = arcpy.Parameter(
-        #    displayName="Number of Times Homeless",
-        #    name="aweds",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #daysHom = arcpy.Parameter(
-        #    displayName="Number of Days Homeless",
-        #    name="zcvs",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #totDaysHom = arcpy.Parameter(
-        #    displayName="Number of Days Homeless (over last 3 years)",
-        #    name="sdfzs",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #vetInd = arcpy.Parameter(
-        #    displayName="Veteran Status",
-        #    name="sdfzv",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #shelteredInd = arcpy.Parameter(
-        #    displayName="Sheltered Individuals",
-        #    name="weru",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #HIVInd = arcpy.Parameter(
-        #    displayName="HIV/AIDS Status",
-        #    name="jpioi",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #mentInd = arcpy.Parameter(
-        #    displayName="Mental Illness",
-        #    name="hklhj",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #subInd = arcpy.Parameter(
-        #    displayName="Substance Abuse",
-        #    name="hjklh",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #domInd = arcpy.Parameter(
-        #    displayName="Homeless Because of Domestic Violence",
-        #    name="lkhj",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="Input")
-
-        #timesHom = arcpy.Parameter(
-        #    displayName="Number of Times Homeless",
-        #    name="hjkln",
-        #    datatype="Field",
-        #    parameterType="Required",
-        #    direction="input")
-
-        params = [inputLayer, outputLocation] #, relationshipID , sleep_loc, ageofInd, genderofInd, ethnofInd, raceInd, parID, timesHom, daysHom, totDaysHom, vetInd, shelteredInd, HIVInd, mentInd, subInd, domInd, timesHom]
+        params = [inputLayer, outputLocation] 
 
         return params
 
@@ -170,14 +49,7 @@ class ExcelOutput(object):
         """Modify the values and properties of parameters before internal
         validation is performed.  This method is called whenever a parameter
         has been changed."""
-        #fields = {x.name for x in arcpy.Describe(parameters[0].valueAsText).fields}
-        #fieldNames = ("relationship",2)
-        #def  fieldIs(field, param):
-        #    if field in fields:
-        #        parameters[param].value = field 
-        #fieldIs("relationship",2)
-        #fieldIs("sleep_location_individual",3)
-        #fieldIs("age",4)
+
         return
 
     def updateMessages(self, parameters):
@@ -190,117 +62,55 @@ class ExcelOutput(object):
 
         arcpy.AddMessage("preparing Excel file...")
         
-        inputLayer, outputLocation = parameters #, relationshipID , sleep_loc, ageofInd, genderofInd, ethnofInd, raceInd, parID, timesHom, daysHom, totDaysHom, vetInd, shelteredInd, HIVInd, mentInd, subInd, domInd, timesHom = parameters
+        inputLayer, outputLocation = parameters 
         pitCount = inputLayer.valueAsText
         xLocate = outputLocation.valueAsText
 
         ###SHELTER TYPE Function
         def headingvET(familyType, familyFullName, startRow):
-
                 header = [familyFullName, " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
                 #write worksheet header
                 worksheet_data.write_row(('A'+(str(3+ startRow))), header, cell_format_title)
-            
-                #Emergency Shelter
-                dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
-                dfESV = len(dfES[dfES[vet1]=="Yes"].index)
-                dfESHH = dfES[parid1].nunique()
-                dfESunq = len(dfES.index)
-                #Transitional Housing
-                dfTH = familyType[familyType[sleeplo1] == 'TransitionalHousing']
-                dfTHV = len(dfTH[dfTH[vet1]=="Yes"].index)
-                dfTHHH = dfTH[parid1].nunique()
-                dfTHunq = len(dfTH.index)
-                #Safe Haven
-                dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
-                dfSHHH = dfSH[parid1].nunique()
-                dfSHV = len(dfSH[dfSH[vet1]=="Yes"].index)
-                dfSHunq = len(dfSH.index)
-                #Unsheltered
-                dfUN = familyType[familyType[shelt1]=="No"]
-                dfUNHH = dfUN[parid1].nunique()
-                dfUNV = len(dfUN[dfUN[vet1]=="Yes"].index)
-                dfUNunq = len(dfUN.index)
+                
+                if sleeplo1 in familyType:
+                    #Emergency Shelter
+                    dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
+                    dfESV = len(dfES[dfES[vet1]=="Yes"].index)
+                    dfESHH = dfES[parid1].nunique()
+                    dfESunq = len(dfES.index)
+                    #Transitional Housing
+                    dfTH = familyType[familyType[sleeplo1] == 'TransitionalHousing']
+                    dfTHV = len(dfTH[dfTH[vet1]=="Yes"].index)
+                    dfTHHH = dfTH[parid1].nunique()
+                    dfTHunq = len(dfTH.index)
+                    #Safe Haven
+                    dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
+                    dfSHHH = dfSH[parid1].nunique()
+                    dfSHV = len(dfSH[dfSH[vet1]=="Yes"].index)
+                    dfSHunq = len(dfSH.index)
+                    #Unsheltered
+                    dfUN = familyType[familyType[shelt1]=="No"]
+                    dfUNHH = dfUN[parid1].nunique()
+                    dfUNV = len(dfUN[dfUN[vet1]=="Yes"].index)
+                    dfUNunq = len(dfUN.index)
 
-                #HH and uniue
-                household = ['Total Number of Households', " ",dfESHH, dfTHHH, dfSHHH, dfUNHH]
-                unique = ['Total Number of Persons', " ",dfESunq, dfTHunq, dfSHunq, dfUNunq]
-                vets = ['Total number of Veterans', "", dfESV, dfTHV, dfSHV, dfUNV]
-                #writetools
-                worksheet_data.write_row(('A'+(str(4 + startRow))), household)
-                worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
-                worksheet_data.write_row(('A'+(str(6+ startRow))), vets)
+                    #HH and uniue
+                    household = ['Total Number of Households', " ",dfESHH, dfTHHH, dfSHHH, dfUNHH]
+                    unique = ['Total Number of Persons', " ",dfESunq, dfTHunq, dfSHunq, dfUNunq]
+                    vets = ['Total number of Veterans', "", dfESV, dfTHV, dfSHV, dfUNV]
+                    #writetools
+                    worksheet_data.write_row(('A'+(str(4 + startRow))), household)
+                    worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
+                    worksheet_data.write_row(('A'+(str(6+ startRow))), vets)
 
         def heading(familyType, familyFullName, startRow):
             header = [familyFullName, " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
             #write worksheet header
             worksheet_data.write_row(('A'+(str(3+ startRow))), header, cell_format_title)
             
-            #Emergency Shelter
-            dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
-            dfESHH = dfES[parid1].nunique()
-            dfESunq = len(dfES.index)
-            #Transitional Housing
-            dfTH = familyType[familyType[sleeplo1] == 'TransitionalHousing']
-            dfTHHH = dfTH[parid1].nunique()
-            dfTHunq = len(dfTH.index)
-            #Safe Haven
-            dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
-            dfSHHH = dfSH[parid1].nunique()
-            dfSHunq = len(dfSH.index)
-            #Unsheltered
-            dfUN = familyType[familyType[shelt1]=="No"]
-            dfUNHH = dfUN[parid1].nunique()
-            dfUNunq = len(dfUN.index)
-
-            #HH and uniue
-            household = ['Total Number of Households', " ",dfESHH, dfTHHH, dfSHHH, dfUNHH]
-            unique = ['Total Number of Persons', " ",dfESunq, dfTHunq, dfSHunq, dfUNunq]
-            #writetools
-            worksheet_data.write_row(('A'+(str(4 + startRow))), household)
-            worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
-            #age
-            dfESu18 = len(dfES[dfES[age1]<18].index)
-            dfESu24 = len(dfES[dfES[age1].between(17,25, inclusive=False)].index)
-            dfESo24 = len(dfES[dfES[age1]>24].index)
-            dfTHu18 = len(dfTH[dfTH[age1]<18].index)
-            dfTHu24 = len(dfTH[dfTH[age1].between(17,25, inclusive=False)].index)
-            dfTHo24 = len(dfTH[dfTH[age1]>24].index)
-            dfSHu18 = len(dfSH[dfSH[age1]<18].index)
-            dfSHu24 = len(dfSH[dfSH[age1].between(17,25, inclusive=False)].index)
-            dfSHo24 = len(dfSH[dfSH[age1]>24].index)
-            dfUNu18 = len(dfUN[dfUN[age1]<18].index)
-            dfUNu24 = len(dfUN[dfUN[age1].between(17,25, inclusive=False)].index)
-            dfUNo24 = len(dfUN[dfUN[age1]>24].index)
-
-            ################ age
-            u18 = ["", "Under Age 18", dfESu18, dfTHu18, dfSHu18, dfUNu18]
-            u24 = ["", "Age 18-24", dfESu24, dfTHu24, dfSHu24, dfUNu24]
-            o24 = ["", "Over Age 24", dfESo24, dfESo24, dfSHo24, dfUNo24]
-            #write age to sheet
-            worksheet_data.write_row(('A'+(str(6 + startRow))), u18)
-            worksheet_data.write_row(('A'+(str(7 + startRow))), u24)
-            worksheet_data.write_row(('A'+(str(8 + startRow))), o24)
-
-        def demograph(familyType, extraWords, startRow):
-                bold = workbook.add_format({'bold':True})
-                #chronic
-                disab = familyType[(familyType[mental1]=="Yes") | (familyType[substan1]=="Yes") | (familyType[hiv1]=="Yes")]
-                chro = disab[(disab[timhom1]=="4 or more times") & (disab[totdayhom1]>364)]
-                chro1 = disab[disab[numday1]>364]
-                chro2 = chro1.append(chro)
-                uniqChro = chro2[parid1].unique()
-                #create an empty dataframe to use 
-                chronic = familyType[(familyType[31]=="nonsense")]
-                if len(uniqChro)>1:
-                    for ID in uniqChro:
-                        HHSep = familyType[familyType[parid1]==ID]
-                        chronic.append(HHSep)
-
+            if sleeplo1 in familyType:
                 #Emergency Shelter
                 dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
-                dfESChro = len(chronic[chronic[sleeplo1]=="EmergencyShelter"].index)
-                dfESChH = chronic[chronic[sleeplo1]=="EmergencyShelter"].nunique()
                 dfESHH = dfES[parid1].nunique()
                 dfESunq = len(dfES.index)
                 #Transitional Housing
@@ -310,124 +120,201 @@ class ExcelOutput(object):
                 #Safe Haven
                 dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
                 dfSHHH = dfSH[parid1].nunique()
-                dfSHChro = len(chronic[chronic[sleeplo1]=="SafeHavens"].index)
-                dfSHChH = chronic[chronic[sleeplo1]=="SafeHavens"].nunique()
                 dfSHunq = len(dfSH.index)
                 #Unsheltered
                 dfUN = familyType[familyType[shelt1]=="No"]
                 dfUNHH = dfUN[parid1].nunique()
-                dfUNChro = len(chronic[chronic[shelt1]=="No"].index)
-                dfUNChH = chronic[chronic[shelt1]=="No"].index.nunique()
                 dfUNunq = len(dfUN.index)
 
-                #gender
-                dfESF = len(dfES[dfES[gend1]=='Female'].index)
-                dfESM = len(dfES[dfES[gend1]=='Male'].index)
-                dfEST = len(dfES[dfES[gend1]== "Transgender"].index)
-                dfESN = len(dfES[dfES[gend1]== "DontIdentify"].index)
-                dfTHF = len(dfTH[dfTH[gend1]=='Female'].index)
-                dfTHM = len(dfTH[dfTH[gend1]=='Male'].index)
-                dfTHT = len(dfTH[dfTH[gend1]== "Transgender"].index)
-                dfTHN = len(dfTH[dfTH[gend1]== "DontIdentify"].index)
-                dfSHF = len(dfSH[dfSH[gend1]=='Female'].index)
-                dfSHM = len(dfSH[dfSH[gend1]=='Male'].index)
-                dfSHT = len(dfSH[dfSH[gend1]== "Transgender"].index)
-                dfSHN = len(dfSH[dfSH[gend1]== "DontIdentify"].index)
-                dfUNF = len(dfUN[dfUN[gend1]=='Female'].index)
-                dfUNM = len(dfUN[dfUN[gend1]=='Male'].index)
-                dfUNT = len(dfUN[dfUN[gend1]== "Transgender"].index)
-                dfUNN = len(dfUN[dfUN[gend1]== "DontIdentify"].index)
-                ############### gender
-                gender = ["Gender", extraWords]
-                female = [" ", "Female",dfESF, dfTHF, dfSHF, dfUNF]
-                male = [" ", "Male",dfESM, dfTHM, dfSHM,  dfUNM]
-                trans = [" ", "Transgender", dfEST, dfTHT, dfSHT, dfUNT]
-                noncon = ["", "Gender Non-Conforming", dfESN, dfTHN, dfSHT, dfUNN]
-                totgen = [" ", "Total number of persons for which gender is known"]               
-                #write gender
-                worksheet_data.write_row(('A'+(str(9 + startRow))), gender, bold)
-                worksheet_data.write_row(('A'+(str(10 + startRow))), female)
-                worksheet_data.write_row(('A'+(str(11 + startRow))), male)
-                worksheet_data.write_row(('A'+(str(12 + startRow))), trans)
-                worksheet_data.write_row(('A'+(str(13 + startRow))), noncon)
-                worksheet_data.write_row(('A'+(str(14 + startRow))), totgen)
-                
-                #ethnicity
-                dfESHis = len(dfES[dfES[ethnicity]== "Yes"].index)
-                dfESNohi = len(dfES[dfES[ethnicity]== "No"].index)
-                dfTHHis = len(dfTH[dfTH[ethnicity]== "Yes"].index)
-                dfTHNohi = len(dfTH[dfTH[ethnicity]== "No"].index)
-                dfSHHis = len(dfSH[dfSH[ethnicity]== "Yes"].index)
-                dfSHNohi = len(dfSH[dfSH[ethnicity]== "No"].index)
-                dfUNHis = len(dfUN[dfUN[ethnicity]== "Yes"].index)
-                dfUNNohi = len(dfUN[dfUN[ethnicity]== "No"].index)
-                #compile
-                ethn = ["Ethnicity", extraWords]
-                NOspan = ["", "Non-Hispanic/Non-Latino", dfESNohi, dfTHNohi, dfSHNohi, dfUNNohi]
-                spans = [ "", "Hispanic/Latino", dfESHis, dfTHHis, dfSHHis, dfUNHis]
-                totspan = ["", "Total number of persons for which ethnicity is known"]            
-                #write
-                worksheet_data.write_row(('A'+(str(15 +startRow))), ethn, bold) 
-                worksheet_data.write_row(('A'+(str(16 + startRow))), NOspan) 
-                worksheet_data.write_row(('A'+(str(17 + startRow))), spans)
-                worksheet_data.write_row(('A'+(str(18 + startRow))), totspan)
+                #HH and uniue
+                household = ['Total Number of Households', " ",dfESHH, dfTHHH, dfSHHH, dfUNHH]
+                unique = ['Total Number of Persons', " ",dfESunq, dfTHunq, dfSHunq, dfUNunq]
+                #writetools
+                worksheet_data.write_row(('A'+(str(4 + startRow))), household)
+                worksheet_data.write_row(('A'+(str(5 + startRow))), unique)
+                #age
+                dfESu18 = len(dfES[dfES[age1]<18].index)
+                dfESu24 = len(dfES[dfES[age1].between(17,25, inclusive=False)].index)
+                dfESo24 = len(dfES[dfES[age1]>24].index)
+                dfTHu18 = len(dfTH[dfTH[age1]<18].index)
+                dfTHu24 = len(dfTH[dfTH[age1].between(17,25, inclusive=False)].index)
+                dfTHo24 = len(dfTH[dfTH[age1]>24].index)
+                dfSHu18 = len(dfSH[dfSH[age1]<18].index)
+                dfSHu24 = len(dfSH[dfSH[age1].between(17,25, inclusive=False)].index)
+                dfSHo24 = len(dfSH[dfSH[age1]>24].index)
+                dfUNu18 = len(dfUN[dfUN[age1]<18].index)
+                dfUNu24 = len(dfUN[dfUN[age1].between(17,25, inclusive=False)].index)
+                dfUNo24 = len(dfUN[dfUN[age1]>24].index)
 
-                #Ethnicity and race
-                dfESWh = len(dfES[dfES[race1]== "White"].index)
-                dfESBl = len(dfES[dfES[race1]== "Black"].index)
-                dfESAs = len(dfES[dfES[race1]== "Asian"].index)
-                dfESAi = len(dfES[dfES[race1]== "AmercanIndian"].index)
-                dfESHi = len(dfES[dfES[race1]=="NativeHawaiian"].index)
-                dfESMul  = len(dfES[dfES[race1].str.contains(',', na=False)].index)
-                dfTHWh = len(dfTH[dfTH[race1]== "White"].index)
-                dfTHBl = len(dfTH[dfTH[race1]== "Black"].index)
-                dfTHAs = len(dfTH[dfTH[race1]== "Asian"].index)
-                dfTHAi = len(dfTH[dfTH[race1]== "AmercanIndian"].index)
-                dfTHHi = len(dfTH[dfTH[race1]=="NativeHawaiian"].index)
-                dfTHMul  = len(dfTH[dfTH[race1].str.contains(',', na=False)].index)
-                dfSHWh = len(dfSH[dfSH[race1]== "White"].index)
-                dfSHBl = len(dfSH[dfSH[race1]== "Black"].index)
-                dfSHAs = len(dfSH[dfSH[race1]== "Asian"].index)
-                dfSHAi = len(dfSH[dfSH[race1]== "AmercanIndian"].index)
-                dfSHHi = len(dfSH[dfSH[race1]=="NativeHawaiian"].index)
-                dfSHMul  = len(dfSH[dfSH[race1].str.contains(',', na=False)].index)
-                dfUNWh = len(dfUN[dfUN[race1]== "White"].index)
-                dfUNBl = len(dfUN[dfUN[race1]== "Black"].index)
-                dfUNAs = len(dfUN[dfUN[race1]== "Asian"].index)
-                dfUNAi = len(dfUN[dfUN[race1]== "AmercanIndian"].index)
-                dfUNHi = len(dfUN[dfUN[race1]=="NativeHawaiian"].index)
-                dfUNMul  = len(dfUN[dfUN[race1].str.contains(',', na=False)].index)
+                ################ age
+                u18 = ["", "Under Age 18", dfESu18, dfTHu18, dfSHu18, dfUNu18]
+                u24 = ["", "Age 18-24", dfESu24, dfTHu24, dfSHu24, dfUNu24]
+                o24 = ["", "Over Age 24", dfESo24, dfESo24, dfSHo24, dfUNo24]
+                #write age to sheet
+                worksheet_data.write_row(('A'+(str(6 + startRow))), u18)
+                worksheet_data.write_row(('A'+(str(7 + startRow))), u24)
+                worksheet_data.write_row(('A'+(str(8 + startRow))), o24)
+
+        def demograph(familyType, extraWords, startRow):
+                bold = workbook.add_format({'bold':True})
+                if sleeplo1 in familyType:
+                    #chronic
+                    chro2 = df.DataFrame()
+                    disab = familyType[(familyType[mental1]=="Yes") | (familyType[substan1]=="Yes") | (familyType[hiv1]=="Yes")]
+                    chro = disab[(disab[timhom1]=="4 or more times") & (disab[totdayhom1]>364)]
+                    chro1 = disab[disab[numday1]>364]
+                    chro2 = chro2.append([chro1, chro]) 
+                    chronic = familyType[(familyType[31]=="nonsense")]
+                    if len(chro2)>0:
+                        uniqChro = chro2[parid1].unique()
+                        #create an empty dataframe to use
+                        for ID in uniqChro:
+                            HHSep = familyType[familyType[parid1]==ID]
+                            chronic = chronic.append(HHSep) 
+
+                    #Emergency Shelter
+                    dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
+                    dfESChro = len(chronic[chronic[sleeplo1]=="EmergencyShelter"].index)
+                    dfESC = chronic[chronic[sleeplo1]=="EmergencyShelter"]
+                    if parid1 in dfESC:
+                        dfESChH = dfESC[parid1].nunique()
+                    else:
+                        dfesChH = len(chronic).index
+                    dfESHH = dfES[parid1].nunique()
+                    dfESunq = len(dfES.index)
+                    #Transitional Housing
+                    dfTH = familyType[familyType[sleeplo1] == 'TransitionalHousing']
+                    dfTHHH = dfTH[parid1].nunique()
+                    dfTHunq = len(dfTH.index)
+                    #Safe Haven
+                    dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
+                    dfSHHH = dfSH[parid1].nunique()
+                    dfSHChro = len(chronic[chronic[sleeplo1]=="SafeHavens"].index)
+                    dfSHC = chronic[chronic[sleeplo1]=="SafeHavens"]
+                    if parid1 in dfSHC:
+                        dfSHChH = dfSHC[parid1].nunique()
+                    else:
+                        dfSHChH = len(chronic).index
+                    dfSHunq = len(dfSH.index)
+                    #Unsheltered
+                    dfUN = familyType[familyType[shelt1]=="No"]
+                    dfUNHH = dfUN[parid1].nunique()
+                    dfUNChro = len(chronic[chronic[shelt1]=="No"].index)
+                    dfUNC = chronic[chronic[shelt1]=="No"]
+                    if parid1 in dfUNC:
+                        dfUNChH = dfUNC[parid1].nunique()
+                    else:
+                        dfUNChH = len(chronic).index     
+                    dfUNunq = len(dfUN.index)
+
+                    #gender
+                    dfESF = len(dfES[dfES[gend1]=='Female'].index)
+                    dfESM = len(dfES[dfES[gend1]=='Male'].index)
+                    dfEST = len(dfES[dfES[gend1]== "Transgender"].index)
+                    dfESN = len(dfES[dfES[gend1]== "DontIdentify"].index)
+                    dfTHF = len(dfTH[dfTH[gend1]=='Female'].index)
+                    dfTHM = len(dfTH[dfTH[gend1]=='Male'].index)
+                    dfTHT = len(dfTH[dfTH[gend1]== "Transgender"].index)
+                    dfTHN = len(dfTH[dfTH[gend1]== "DontIdentify"].index)
+                    dfSHF = len(dfSH[dfSH[gend1]=='Female'].index)
+                    dfSHM = len(dfSH[dfSH[gend1]=='Male'].index)
+                    dfSHT = len(dfSH[dfSH[gend1]== "Transgender"].index)
+                    dfSHN = len(dfSH[dfSH[gend1]== "DontIdentify"].index)
+                    dfUNF = len(dfUN[dfUN[gend1]=='Female'].index)
+                    dfUNM = len(dfUN[dfUN[gend1]=='Male'].index)
+                    dfUNT = len(dfUN[dfUN[gend1]== "Transgender"].index)
+                    dfUNN = len(dfUN[dfUN[gend1]== "DontIdentify"].index)
+                    ############### gender
+                    gender = ["Gender", extraWords]
+                    female = [" ", "Female",dfESF, dfTHF, dfSHF, dfUNF]
+                    male = [" ", "Male",dfESM, dfTHM, dfSHM,  dfUNM]
+                    trans = [" ", "Transgender", dfEST, dfTHT, dfSHT, dfUNT]
+                    noncon = ["", "Gender Non-Conforming", dfESN, dfTHN, dfSHN, dfUNN]
+                    totgen = [" ", "Total number of persons for which gender is known"]               
+                    #write gender
+                    worksheet_data.write_row(('A'+(str(9 + startRow))), gender, bold)
+                    worksheet_data.write_row(('A'+(str(10 + startRow))), female)
+                    worksheet_data.write_row(('A'+(str(11 + startRow))), male)
+                    worksheet_data.write_row(('A'+(str(12 + startRow))), trans)
+                    worksheet_data.write_row(('A'+(str(13 + startRow))), noncon)
+                    worksheet_data.write_row(('A'+(str(14 + startRow))), totgen)
+                
+                    #ethnicity
+                    dfESHis = len(dfES[dfES[ethnicity]== "Yes"].index)
+                    dfESNohi = len(dfES[dfES[ethnicity]== "No"].index)
+                    dfTHHis = len(dfTH[dfTH[ethnicity]== "Yes"].index)
+                    dfTHNohi = len(dfTH[dfTH[ethnicity]== "No"].index)
+                    dfSHHis = len(dfSH[dfSH[ethnicity]== "Yes"].index)
+                    dfSHNohi = len(dfSH[dfSH[ethnicity]== "No"].index)
+                    dfUNHis = len(dfUN[dfUN[ethnicity]== "Yes"].index)
+                    dfUNNohi = len(dfUN[dfUN[ethnicity]== "No"].index)
+                    #compile
+                    ethn = ["Ethnicity", extraWords]
+                    NOspan = ["", "Non-Hispanic/Non-Latino", dfESNohi, dfTHNohi, dfSHNohi, dfUNNohi]
+                    spans = [ "", "Hispanic/Latino", dfESHis, dfTHHis, dfSHHis, dfUNHis]
+                    totspan = ["", "Total number of persons for which ethnicity is known"]            
+                    #write
+                    worksheet_data.write_row(('A'+(str(15 +startRow))), ethn, bold) 
+                    worksheet_data.write_row(('A'+(str(16 + startRow))), NOspan) 
+                    worksheet_data.write_row(('A'+(str(17 + startRow))), spans)
+                    worksheet_data.write_row(('A'+(str(18 + startRow))), totspan)
+
+                    #Ethnicity and race
+                    dfESWh = len(dfES[dfES[race1]== "White"].index)
+                    dfESBl = len(dfES[dfES[race1]== "Black"].index)
+                    dfESAs = len(dfES[dfES[race1]== "Asian"].index)
+                    dfESAi = len(dfES[dfES[race1]== "AmercanIndian"].index)
+                    dfESHi = len(dfES[dfES[race1]=="NativeHawaiian"].index)
+                    dfESMul  = len(dfES[dfES[race1].str.contains(',', na=False)].index)
+                    dfTHWh = len(dfTH[dfTH[race1]== "White"].index)
+                    dfTHBl = len(dfTH[dfTH[race1]== "Black"].index)
+                    dfTHAs = len(dfTH[dfTH[race1]== "Asian"].index)
+                    dfTHAi = len(dfTH[dfTH[race1]== "AmercanIndian"].index)
+                    dfTHHi = len(dfTH[dfTH[race1]=="NativeHawaiian"].index)
+                    dfTHMul  = len(dfTH[dfTH[race1].str.contains(',', na=False)].index)
+                    dfSHWh = len(dfSH[dfSH[race1]== "White"].index)
+                    dfSHBl = len(dfSH[dfSH[race1]== "Black"].index)
+                    dfSHAs = len(dfSH[dfSH[race1]== "Asian"].index)
+                    dfSHAi = len(dfSH[dfSH[race1]== "AmercanIndian"].index)
+                    dfSHHi = len(dfSH[dfSH[race1]=="NativeHawaiian"].index)
+                    dfSHMul  = len(dfSH[dfSH[race1].str.contains(',', na=False)].index)
+                    dfUNWh = len(dfUN[dfUN[race1]== "White"].index)
+                    dfUNBl = len(dfUN[dfUN[race1]== "Black"].index)
+                    dfUNAs = len(dfUN[dfUN[race1]== "Asian"].index)
+                    dfUNAi = len(dfUN[dfUN[race1]== "AmericanIndian"].index)
+                    dfUNHi = len(dfUN[dfUN[race1]=="NativeHawaiian"].index)
+                    dfUNMul  = len(dfUN[dfUN[race1].str.contains(',', na=False)].index)
          
-                #summup
-                racehead = ["Race", extraWords]
-                white = ["", "White", dfESWh, dfTHWh, dfSHWh, dfUNWh]
-                black = ["", "Black of African-American", dfESBl, dfTHBl, dfSHBl, dfUNBl]
-                asian = ["", "Asian", dfESAs, dfTHAs, dfSHAs, dfUNAs]
-                amerInd = ["", "American Indian or Alaskan Native", dfESAi, dfTHAi, dfSHAi, dfUNAi]
-                paci = ["", "Native Hawaiian or Other Pacific Islander", dfESHi, dfTHHi, dfSHHi, dfUNHi]
-                mult = ["", "Multiple Races", dfESMul, dfTHMul, dfSHMul, dfUNMul]
-                totrac= ["", "Total Number of persons for which race is known"]                               
-                #WRITE WORKSHEET
-                worksheet_data.write_row(('A'+(str(19 + startRow))), racehead, bold)
-                worksheet_data.write_row(('A'+(str(20 + startRow))), white)
-                worksheet_data.write_row(('A'+(str(21 + startRow))), black)
-                worksheet_data.write_row(('A'+(str(22 + startRow))), asian)
-                worksheet_data.write_row(('A'+(str(23 + startRow))), amerInd)
-                worksheet_data.write_row(('A'+(str(24 + startRow))), paci)
-                worksheet_data.write_row(('A'+(str(25 + startRow))), mult)
-                worksheet_data.write_row(('A'+(str(26 + startRow))), totrac)
+                    #summup
+                    racehead = ["Race", extraWords]
+                    white = ["", "White", dfESWh, dfTHWh, dfSHWh, dfUNWh]
+                    black = ["", "Black of African-American", dfESBl, dfTHBl, dfSHBl, dfUNBl]
+                    asian = ["", "Asian", dfESAs, dfTHAs, dfSHAs, dfUNAs]
+                    amerInd = ["", "American Indian or Alaskan Native", dfESAi, dfTHAi, dfSHAi, dfUNAi]
+                    paci = ["", "Native Hawaiian or Other Pacific Islander", dfESHi, dfTHHi, dfSHHi, dfUNHi]
+                    mult = ["", "Multiple Races", dfESMul, dfTHMul, dfSHMul, dfUNMul]
+                    totrac= ["", "Total Number of persons for which race is known"]                               
+                    #WRITE WORKSHEET
+                    worksheet_data.write_row(('A'+(str(19 + startRow))), racehead, bold)
+                    worksheet_data.write_row(('A'+(str(20 + startRow))), white)
+                    worksheet_data.write_row(('A'+(str(21 + startRow))), black)
+                    worksheet_data.write_row(('A'+(str(22 + startRow))), asian)
+                    worksheet_data.write_row(('A'+(str(23 + startRow))), amerInd)
+                    worksheet_data.write_row(('A'+(str(24 + startRow))), paci)
+                    worksheet_data.write_row(('A'+(str(25 + startRow))), mult)
+                    worksheet_data.write_row(('A'+(str(26 + startRow))), totrac)
 
-                #habitual
-                chronicHom = ["", "Total Number of Households", 0,"NA",0,0]
-                chronicHH = ["", "Total Number of Persons", 0,"NA",0,0]
-                if len(chronic)>0:
-                    chronicHH = ["", "Total Number of Households", dfESChH, "NA", dfSHChH, dfUNChH]
-                    chronicHom = ["", "Total Number of Persons",dfESChro, "NA", dfSHChro, dfUNChro]
-                chronicHead = ["Chronically Homeless", "(all)"]
+                    #habitual
+                    chronicHom = ["", "Total Number of Persons", 0,"NA",0,0]
+                    chronicHH = ["", "Total Number of Households", 0,"NA",0,0]
+                    if len(chronic)>0:
+                        chronicHH = ["", "Total Number of Households", dfESChH, "NA", dfSHChH, dfUNChH]
+                        chronicHom = ["", "Total Number of Persons",dfESChro, "NA", dfSHChro, dfUNChro]
+                    chronicHead = ["Chronically Homeless", "(all)"]
                 
-                worksheet_data.write_row(('A'+(str(27 + startRow))), chronicHead, bold)
-                worksheet_data.write_row(('A'+(str(28 + startRow))), chronicHom)
-                worksheet_data.write_row(('A'+(str(29 + startRow))), chronicHH)
+                    worksheet_data.write_row(('A'+(str(27 + startRow))), chronicHead, bold)
+                    worksheet_data.write_row(('A'+(str(28 + startRow))), chronicHH)
+                    worksheet_data.write_row(('A'+(str(29 + startRow))), chronicHom)
 
         #get field names to use in query 
         fields = arcpy.ListFields(pitCount)
@@ -441,14 +328,12 @@ class ExcelOutput(object):
         age1 = fieldNames.index("age")
         gend1 = fieldNames.index("gender")
         ethnicity = fieldNames.index("hispanic")
-
         race1 = fieldNames.index("race")
         parid1 = fieldNames.index("parentglobalid")
         timhom1 = fieldNames.index("times_homeless")
         numday1 = fieldNames.index("days_homeless")
         totdayhom1 = fieldNames.index("days_total_homeless")
         vet1 = fieldNames.index("veteran_full")
-        arcpy.AddMessage(vet1)
         shelt1 = fieldNames.index("sheltered_individuals")
         hiv1 = fieldNames.index("has_hiv")
         mental1 = fieldNames.index("psychiatric_condition")
@@ -468,9 +353,9 @@ class ExcelOutput(object):
         #Unique Households and seperate them into families and single 
         family = df.DataFrame()
         single = df.DataFrame()
-        HH =  panda[58].unique()
+        HH =  panda[parid1].unique()
         for ID in HH:
-            HHSep = panda.loc[panda[58] == ID]
+            HHSep = panda.loc[panda[parid1] == ID]
             if len(HHSep)>1:
                 family = family.append(HHSep)
             else:
@@ -478,15 +363,23 @@ class ExcelOutput(object):
     
         #Get Family Type
         #########seprate sub groups (not family units)
-        U18Fam = family[family[13]<18]
-        YTHFam = family[family[13]<25]
-        ADYFam = family[family[13]>17]
-        ADFam = family[family[13]>24]
+        if age1 in family:
+            U18Fam = family.loc[family.loc[:,age1]<18]
+            YTHFam = family.loc[family[age1]<25]
+            ADYFam = family.loc[family[age1]>17]
+            ADFam = family.loc[family[age1]>24]
 
         ########do the same for singles (not family units)
-        ADSing = single[single[13]>17]
-        CHSing = single[single[13]<18]
-        YTSing = single[single[13]<24]
+        #make variables that are empty 
+        if age1 in single:
+            ADSing = single[single[age1]>17]
+            CHSing = single[single[age1]<18]
+            YTSing = single[single[age1]<24]
+        else:
+            ADSing = panda[panda[1]=="Yellow"]
+            CHSing = panda[panda[1]=="Yellow"]
+            YTSing = panda[panda[1]=="Yellow"]
+
         
         workbook = xlsxwriter.Workbook(xLocate)
         #####Format options
@@ -523,8 +416,8 @@ class ExcelOutput(object):
         CHFAM = df.DataFrame()
         ADNOCH = df.DataFrame()
         for ID in HH:
-            ch = U18Fam.loc[U18Fam[58] == ID]
-            ad = ADYFam.loc[ADYFam[58] == ID]
+            ch = U18Fam.loc[U18Fam[parid1] == ID]
+            ad = ADYFam.loc[ADYFam[parid1] == ID]
             if len(ad.index)>0 and len(ch.index)>0:
                 ADCH = ADCH.append([ad,ch])
             elif len(ad.index)==0 and len(ch.index)>0:
@@ -538,7 +431,7 @@ class ExcelOutput(object):
         #####chronic homelessness status
          
         ###########################################get households with no children                                                
-        noChildren = ADNOCH.append(ADSing)     
+        noChildren = ADNOCH.append(ADSing)
         ##shelter type
         heading(noChildren, 'Households without Children', 27)
         demograph(noChildren, "", 27)
@@ -552,23 +445,32 @@ class ExcelOutput(object):
         ############################################Veterans
         vets = df.DataFrame()
         allVets = panda.loc[panda[vet1]=="Yes"]
-        uniqVets = allVets[58].unique()
-        for ID in uniqVets:
-            HHSep = panda.loc[panda[58] == ID]
-            vets = vets.append(HHSep)
+        if parid1 in allVets:
+            uniqVets = allVets[parid1].unique()
+            for ID in uniqVets:
+                HHSep = panda.loc[panda[parid1] == ID]
+                vets = vets.append(HHSep)
         vetNOCH = df.DataFrame()
         vetCH = df.DataFrame()
-        U18Vet = vets[vets[13]<18]
-        ADVet = vets[vets[13]>17]
+        if age1 in vets:
+            U18Vet = vets[vets[age1]<18]
+            ADVet = vets[vets[age1]>17]
+
         for ID in uniqVets:
-            ch = U18Vet[U18Vet[58] == ID]
-            ad = ADVet[ADVet[58] == ID]
+            ch = U18Vet[U18Vet[parid1] == ID]
+            ad = ADVet[ADVet[parid1] == ID]
             if len(ad.index)>0 and len(ch.index)>0:
                 vetCH = vetCH.append([ad,ch])
             elif len(ad.index)>0 and len(ch.index)==0:
                 vetNOCH = vetNOCH.append(ad)
-        vetsofvetCH = vetCH[vetCH[vet1]=="Yes"]
-        vetsofvetNOCH = vetNOCH[vetNOCH[vet1]=="Yes"]
+        if vet1 in vetCH: 
+            vetsofvetCH = vetCH[vetCH[vet1]=="Yes"]
+        else:
+            vetsofvetCH = vetCH
+        if vet1 in vetNOCH:
+            vetsofvetNOCH = vetNOCH[vetNOCH[vet1]=="Yes"]
+        else:
+            vetsofvetNOCH = vetCH
 
         #households with children
         headingvET(vetCH, "Veteran HH with At Least One Adult and One Child", 82)
@@ -582,24 +484,25 @@ class ExcelOutput(object):
         ############################################youth unaccompanied                                                      
         UNYTH = df.DataFrame()
         for ID in HH:
-            yt = YTHFam.loc[YTHFam[58] == ID]
-            ad = ADFam.loc[ADFam[58] == ID]
+            yt = YTHFam.loc[YTHFam[parid1] == ID]
+            ad = ADFam.loc[ADFam[parid1] == ID]
             if len(yt.index)>0 and len(ad.index)==0:
                 UNYTH = UNYTH.append(yt)
 
         ###Get parenting youth seprate from more than one yth living together 
         PARYth = df.DataFrame()
         NOparyth = df.DataFrame()
-        ythNum = UNYTH[58].unique()
         childrenof = df.DataFrame()
-        for ID in ythNum:
-            HHSep = UNYTH.loc[UNYTH[58] ==ID]
-            lenfam = HHSep[HHSep[relate1]=="Child"]
-            if len(lenfam.index)>0:
-                PARYth = PARYth.append(HHSep)
-                childrenof = childrenof.append(lenfam)
-            else:
-                NOparyth = NOparyth.append(HHSep)
+        if parid1 in UNYTH: 
+            ythNum = UNYTH[parid1].unique()
+            for ID in ythNum:
+                HHSep = UNYTH.loc[UNYTH[parid1] ==ID]
+                lenfam = HHSep[HHSep[relate1]=="Child"]
+                if len(lenfam.index)>0:
+                    PARYth = PARYth.append(HHSep)
+                    childrenof = childrenof.append(lenfam)
+                else:
+                    NOparyth = NOparyth.append(HHSep)
         ythUnaccSi = UNYTH.append(YTSing)
         ythUnacc = ythUnaccSi.append(NOparyth)
 
@@ -607,16 +510,16 @@ class ExcelOutput(object):
             unique = ["", title, 0, 0 , 0 , 0]
             if len(familyType)>0:
                 #Emergency Shelter
-                dfES = familyType[familyType[11]=='EmergencyShelter']
+                dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
                 dfESunq = len(dfES.index)
                 #Transitional Housing
-                dfTH = familyType[familyType[11] == 'TransitionalHousing']
+                dfTH = familyType[familyType[sleeplo1] == 'TransitionalHousing']
                 dfTHunq = len(dfTH.index)
                 #Safe Haven
-                dfSH = familyType[familyType[11] == 'SafeHavens']
+                dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
                 dfSHunq = len(dfSH.index)
                 #Unsheltered
-                dfUN = familyType[familyType[12]=="No"]
+                dfUN = familyType[familyType[shelt1]=="No"]
                 dfUNunq = len(dfUN.index)
 
                 #HH and uniue
@@ -635,43 +538,44 @@ class ExcelOutput(object):
         headerPar = ["Parenting Youth Households", " ", 'Sheltered ES', 'Sheltered TH', 'Sheltered SH', 'Unsheltered', 'Totals']
                 #write worksheet header
         worksheet_data.write_row(('A163'), headerPar, cell_format_title)
-        parentsOnly = PARYth[PARYth[relate1].isnull()]
-        parentsover18 = parentsOnly[parentsOnly[13]>17]
-        parentsunder18 = parentsOnly[parentsOnly[13]<17]
+        if parid1 in PARYth:
+            parentsOnly = PARYth[PARYth[relate1].isnull()]
+            parentsover18 = parentsOnly[parentsOnly[age1]>17]
+            parentsunder18 = parentsOnly[parentsOnly[age1]<18]
         
-        parentsoveruniq= parentsover18[58].unique()
-        otheruniq = childrenof[58].unique()
-        parentsunderuniq= parentsunder18[58].unique()
-        childofYth = df.DataFrame()
-        childofChild = df.DataFrame()
-        for ID in parentsoveruniq:
-            youthFam = childrenof.loc[childrenof[58]==ID]
-            childofYth = childofYth.append(youthFam)
-        for ID in parentsunderuniq:
-            childFam = childrenof.loc[childrenof[58]==ID]
-            childofChild =  childofChild.append(childFam)
+            parentsoveruniq= parentsover18[parid1].unique()
+            otheruniq = childrenof[parid1].unique()
+            parentsunderuniq= parentsunder18[parid1].unique()
+            childofYth = df.DataFrame()
+            childofChild = df.DataFrame()
+            for ID in parentsoveruniq:
+                youthFam = childrenof.loc[childrenof[parid1]==ID]
+                childofYth = childofYth.append(youthFam)
+            for ID in parentsunderuniq:
+                childFam = childrenof.loc[childrenof[parid1]==ID]
+                childofChild =  childofChild.append(childFam)
 
-        parYthWrite(parentsunder18, "Number of parenting youth under Age 18",168)
-        parYthWrite(parentsover18, "Number of parenting youth Age 18-24",170)
-        parYthWrite(childofYth, "       Children in HH with parenting youth Age 18-24", 171)
-        parYthWrite(childofChild, "     Children in HH with parenting youth under Age 18",169)
-        demograph(parentsOnly, "(youth parents only)", 163)
+            parYthWrite(parentsunder18, "Number of parenting youth under Age 18",168)
+            parYthWrite(parentsover18, "Number of parenting youth Age 18-24",170)
+            parYthWrite(childofYth, "       Children in HH with parenting youth Age 18-24", 171)
+            parYthWrite(childofChild, "     Children in HH with parenting youth under Age 18",169)
+            demograph(parentsOnly, "(youth parents only)", 163)
         #####chronic homelessness status
         
         def parYthTop(familyType, title, startRow):
             unique = [title, "", 0, 0 , 0 , 0]
             if len(familyType)>0:
                 #Emergency Shelter
-                dfES = familyType[familyType[11]=='EmergencyShelter']
+                dfES = familyType[familyType[sleeplo1]=='EmergencyShelter']
                 dfESunq = len(dfES.index)
                 #Transitional Housing
-                dfTH = familyType[familyType[11] == 'TransitionalHousing']
+                dfTH = familyType[familyType[sleeplo1] == 'TransitionalHousing']
                 dfTHunq = len(dfTH.index)
                 #Safe Haven
-                dfSH = familyType[familyType[11] == 'SafeHavens']
+                dfSH = familyType[familyType[sleeplo1] == 'SafeHavens']
                 dfSHunq = len(dfSH.index)
                 #Unsheltered
-                dfUN = familyType[familyType[12]=="No"]
+                dfUN = familyType[familyType[shelt1]=="No"]
                 dfUNunq = len(dfUN.index)
                 #HH and uniue
                 unique = [title,"", dfESunq, dfTHunq, dfSHunq, dfUNunq]
@@ -679,10 +583,11 @@ class ExcelOutput(object):
             #writetools
             worksheet_data.write_row(('A'+(str(startRow))), unique)
 
-        parYthTop(parentsOnly, "Total Number of Parenting Youth Households", 164)
-        parYthTop(PARYth, "Total Number of Persons in Parenting Youth Households", 165)
-        parYthTop(parentsOnly, "Total Parenting Youth", 166)
-        parYthTop(childrenof, "Total Children in Parenting Youth Household", 167)
+        if parid1 in PARYth:
+            parYthTop(parentsOnly, "Total Number of Parenting Youth Households", 164)
+            parYthTop(PARYth, "Total Number of Persons in Parenting Youth Households", 165)
+            parYthTop(parentsOnly, "Total Parenting Youth", 166)
+            parYthTop(childrenof, "Total Children in Parenting Youth Household", 167)
         ##############################################Adult aids, mental illness etc.
         ####Final Formatting
         #gender
@@ -735,10 +640,10 @@ class ExcelOutput(object):
         sub = panda[panda[substan1]=="Yes"]
        
         def adultD(thing, name, row):
-            dfES = len(thing[thing[11]=='EmergencyShelter'].index)
-            dfSH = len(thing[thing[11] == 'SafeHavens'].index)
-            dfTH = len(thing[thing[11] == 'TransitionalHousing'].index)
-            dfUN = len(thing[thing[12]=="No"].index)
+            dfES = len(thing[thing[sleeplo1]=='EmergencyShelter'].index)
+            dfSH = len(thing[thing[sleeplo1] == 'SafeHavens'].index)
+            dfTH = len(thing[thing[sleeplo1] == 'TransitionalHousing'].index)
+            dfUN = len(thing[thing[shelt1]=="No"].index)
             all =  [name, "", dfES, dfTH, dfSH, dfUN] 
             worksheet_data.write_row(('A'+(str(row))), all)
 

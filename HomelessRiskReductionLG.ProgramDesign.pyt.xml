@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<metadata xml:lang="en">
+	<Esri>
+		<CreaDate>20181031</CreaDate>
+		<CreaTime>11584300</CreaTime>
+		<ArcGISFormat>1.0</ArcGISFormat>
+		<SyncOnce>TRUE</SyncOnce>
+		<ModDate>20181031</ModDate>
+		<ModTime>12002000</ModTime>
+		<scaleRange>
+			<minScale>150000000</minScale>
+			<maxScale>5000</maxScale>
+		</scaleRange>
+	</Esri>
+	<tool name="ProgramDesign" displayname="Program Design" toolboxalias="" xmlns="">
+		<arcToolboxHelpPath>c:\program files\arcgis\pro\Resources\Help\gp</arcToolboxHelpPath>
+		<parameters>
+			<param name="polygon_layer" displayname="Input Features" type="Required" direction="Input" datatype="Feature Layer" expression="polygon_layer">
+				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The polygon feature layer created in the Create Risk Surface Tool. &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
+			</param>
+			<param name="out_features" displayname="Output Feature Layer" type="Required" direction="Output" datatype="Feature Layer" expression="out_features">
+				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The output feature layer containing all the input features and a new field 'program name', which ranks the top locations for your new program. &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
+			</param>
+			<param name="field_names" displayname="Contributing factors" type="Required" direction="Input" datatype="Multiple Value" expression="field_names;field_names...">
+				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The risk factor fields that relate to your program demographic to be considered in siting the program. &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
+			</param>
+			<param name="new_indicator" displayname="Program Name" type="Required" direction="Input" datatype="String" expression="new_indicator">
+				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The name or ID of the program you are siting. This name will serve as the field alias for your resulting ranked features. &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
+			</param>
+			<param name="num_results" displayname="Number of Results" type="Required" direction="Input" datatype="Long" expression="num_results">
+				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The number of features you wish to rank. The resulting features are selected from the input feature class. They are the most at risk features as determined by the RISK RANK field. &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference>
+			</param>
+		</parameters>
+	</tool>
+	<dataIdInfo>
+		<idCitation>
+			<resTitle>Program Design</resTitle>
+		</idCitation>
+	</dataIdInfo>
+	<distInfo>
+		<distributor>
+			<distorFormat>
+				<formatName>ArcToolbox Tool</formatName>
+			</distorFormat>
+		</distributor>
+	</distInfo>
+	<mdHrLv>
+		<ScopeCd value="005"></ScopeCd>
+	</mdHrLv>
+	<mdDateSt Sync="TRUE">20181031</mdDateSt>
+</metadata>
